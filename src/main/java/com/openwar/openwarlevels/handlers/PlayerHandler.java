@@ -1,7 +1,9 @@
 package com.openwar.openwarlevels.handlers;
 
 import com.openwar.openwarfaction.factions.FactionManager;
+import com.openwar.openwarlevels.Main;
 import com.openwar.openwarlevels.level.PlayerDataManager;
+import com.openwar.openwarlevels.level.PlayerLevel;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
@@ -10,6 +12,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 import java.util.*;
@@ -18,15 +24,69 @@ public class PlayerHandler implements Listener {
 
     private final PlayerDataManager data;
     private final FactionManager fm;
+    private final JavaPlugin main;
 
     private double experience;
+    private long lastExpTime;
+    private final long EXP_TIMEOUT = 4000;
     private Map<Material, Double> BLOCK = new HashMap<>();
     private Map<Material, Double> CROPS = new HashMap<>();
 
-    public PlayerHandler(PlayerDataManager data, FactionManager fm) {
+    public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
         this.fm = fm;
+        this.main = main;
+        loadList();
+        startExpTimer();
     }
+
+    @EventHandler
+    public void onHarvestCrops(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Material blockType = block.getType();
+        if (block.hasMetadata("no_exp")) {
+            return;
+        }
+        if (blockType == Material.CROPS) {
+            int datablock = block.getData();
+            if (datablock == 7) {
+                if (CROPS.containsKey(blockType)) {
+                    double exp = CROPS.get(blockType);
+                    showExp(player, exp);
+                    lastExpTime = System.currentTimeMillis();
+                    PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
+                    playerLevel.setExperience(playerLevel.getExperience() + (int) exp, player);
+                    data.savePlayerData(player.getUniqueId(), playerLevel);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMineBlock(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Material type = block.getType();
+        if (block.hasMetadata("no_exp")) {
+            return;
+        }
+        if (BLOCK.containsKey(type)) {
+            double exp = BLOCK.get(type);
+            showExp(player, exp);
+            lastExpTime = System.currentTimeMillis();
+            PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
+            playerLevel.setExperience(playerLevel.getExperience() + (int) exp, player);
+            data.savePlayerData(player.getUniqueId(), playerLevel);
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
+        block.setMetadata("no_exp", new FixedMetadataValue(main, true));
+    }
+
 
     public void loadList() {
         BLOCK.put(Material.STONE, 1.4);
@@ -83,39 +143,26 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.LOG, 5.6);
         BLOCK.put(Material.CLAY, 3.6);
 
-        CROPS.put(Material.WHEAT, 72.4);
+        CROPS.put(Material.CROPS, 72.4);
         CROPS.put(Material.NETHER_WARTS, 1.9);
         CROPS.put(Material.MELON_BLOCK, 89.6);
         CROPS.put(Material.PUMPKIN, 89.6);
-        CROPS.put(Material.POTATO, 72.4);
-        CROPS.put(Material.CARROT, 72.4);
-        CROPS.put(Material.BEETROOT, 72.4);
     }
 
-    @EventHandler
-    public void onHarvestCrops(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        Block block = event.getBlock();
-        Material blockType = block.getType();
-        if (blockType == Material.WHEAT) {
-            int data = block.getData();
-            if (data == 7) {
-                if (CROPS.containsKey(blockType)) {
-                    double exp = CROPS.get(blockType);
-                    showExp(player, exp);
-                    if (experience < 0) {
-
-                    }
-                    //player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
+    private void startExpTimer() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - lastExpTime > EXP_TIMEOUT) {
+                    experience = 0;
                 }
             }
-        }
+        }.runTaskTimer(main, 0L, 20L);
     }
-
 
     public void showExp(Player player, double exp) {
-        experience+= exp;
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(" "+experience+" "));
+        experience += exp;
+        String formattedExp = String.format("%.1f", experience);
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + "§8XP"));
     }
-
 }

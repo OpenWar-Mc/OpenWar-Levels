@@ -24,8 +24,7 @@ public final class Main extends JavaPlugin {
         System.out.println(" OpenWar - Levels, loading ...");
         this.playerDataManager = new PlayerDataManager();
         getServer().getPluginManager().registerEvents(new PlayerListener(playerDataManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerHandler(playerDataManager, fm), this);
-        ph.loadList();
+        getServer().getPluginManager().registerEvents(new PlayerHandler(this, playerDataManager, fm), this);
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
