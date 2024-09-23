@@ -45,9 +45,6 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material blockType = block.getType();
-        if (block.hasMetadata("no_exp")) {
-            return;
-        }
         if (blockType == Material.CROPS) {
             int datablock = block.getData();
             if (datablock == 7) {
@@ -163,6 +160,6 @@ public class PlayerHandler implements Listener {
     public void showExp(Player player, double exp) {
         experience += exp;
         String formattedExp = String.format("%.1f", experience);
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + "§8XP"));
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §8XP"));
     }
 }

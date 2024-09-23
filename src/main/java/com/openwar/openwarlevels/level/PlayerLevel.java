@@ -38,7 +38,7 @@ public class PlayerLevel {
         }
         if (currentLevel != this.level) {
             this.level = currentLevel;
-            player.sendMessage("§8» §cYou just rank-up level §4" +level+" §c!");
+            player.sendMessage("§8» §cYou just rank-up level §4" +level+" §8§k§lIII");
         }
     }
 }
