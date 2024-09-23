@@ -137,13 +137,14 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.matchMaterial("hbm:ore_meteor_starmetal"), 123.2);
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_schrabidium"), 266.6);
         BLOCK.put(Material.matchMaterial("hbm:ore_schrabidium"), 231.8);
-        BLOCK.put(Material.LOG, 5.6);
-        BLOCK.put(Material.CLAY, 3.6);
+        BLOCK.put(Material.LOG, 48.6);
+        BLOCK.put(Material.CLAY, 34.6);
+        BLOCK.put(Material.MELON_BLOCK, 89.6);
+        BLOCK.put(Material.PUMPKIN, 89.6);
+
 
         CROPS.put(Material.CROPS, 72.4);
-        CROPS.put(Material.NETHER_WARTS, 1.9);
-        CROPS.put(Material.MELON_BLOCK, 89.6);
-        CROPS.put(Material.PUMPKIN, 89.6);
+        CROPS.put(Material.NETHER_WARTS, 81.9);
     }
 
     private void startExpTimer() {
