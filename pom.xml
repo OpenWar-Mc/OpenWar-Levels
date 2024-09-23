@@ -67,5 +67,12 @@
           <version>1.12.2-R0.1-SNAPSHOT</version>
           <scope>provided</scope>
       </dependency>
+      <dependency>
+          <groupId>com.openwar</groupId>
+          <artifactId>OpenWar-Faction</artifactId>
+          <version>1.0</version>
+          <scope>system</scope>
+          <systemPath>${project.basedir}/lib/faction.jar</systemPath>
+      </dependency>
   </dependencies>
 </project>
