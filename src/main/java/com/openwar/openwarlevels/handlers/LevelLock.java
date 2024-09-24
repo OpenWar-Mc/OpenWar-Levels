@@ -12,7 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,10 +41,15 @@ public class LevelLock implements Listener {
         Block block = event.getClickedBlock();
         Material type = block.getType();
         Location loc = block.getLocation();
+        System.out.println("loc : "+ loc);
         Chunk chunk = loc.getChunk();
+        System.out.println("Chunk :"+chunk);
+        boolean test = fm.isLandClaimed(chunk);
+        System.out.println("is claimed: "+test);
         if (fm.isLandClaimed(chunk)) {
             Faction fac = fm.getFactionByPlayer(player.getUniqueId());
             Faction facOwnChunk = fm.getFactionByChunk(chunk);
+            System.out.println("Fac Player: "+fac+" Fac Chunk: "+facOwnChunk);
             if (fac == facOwnChunk){
                 return;
             }
@@ -59,7 +64,7 @@ public class LevelLock implements Listener {
     }
 
     @EventHandler
-    public void onBreak(BlockBreakEvent event) {
+    public void onBreak(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         int level = player.getLevel();
         Block block = event.getBlock();
