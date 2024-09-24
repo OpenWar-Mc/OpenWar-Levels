@@ -1,28 +1,38 @@
 package com.openwar.openwarlevels.handlers;
 
+import com.openwar.openwarfaction.factions.Faction;
+import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.level.PlayerDataManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
-public class LevelLock {
+public class LevelLock implements Listener {
     private PlayerDataManager data;
+    private FactionManager fm;
     private JavaPlugin main;
     private Map<Material, Integer> LOCK = new HashMap<>();
 
-    public LevelLock(JavaPlugin main, PlayerDataManager data) {
+    public LevelLock(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
         this.main = main;
+        this.fm = fm;
         loadLock();
     }
+
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -30,15 +40,37 @@ public class LevelLock {
         int level = player.getLevel();
         Block block = event.getClickedBlock();
         Material type = block.getType();
+        Location loc = block.getLocation();
+        Chunk chunk = loc.getChunk();
+        if (fm.isLandClaimed(chunk)) {
+            Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+            Faction facOwnChunk = fm.getFactionByChunk(chunk);
+            if (fac == facOwnChunk){
+                return;
+            }
+        }
         if (LOCK.containsKey(type)) {
             int requiredLevel = LOCK.get(type);
             if (requiredLevel > level) {
                 event.setCancelled(true);
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be leve: §c" + requiredLevel + " "));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8» §cYou need to be level: §4" + requiredLevel + " §c!"));
             }
-
         }
+    }
 
+    @EventHandler
+    public void onBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        int level = player.getLevel();
+        Block block = event.getBlock();
+        Material type = block.getType();
+        if (LOCK.containsKey(type)) {
+            int requiredLevel = LOCK.get(type);
+            if (requiredLevel > level) {
+                event.setCancelled(true);
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
+            }
+        }
     }
 
     public void loadLock() {

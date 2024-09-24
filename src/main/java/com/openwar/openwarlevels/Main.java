@@ -1,6 +1,7 @@
 package com.openwar.openwarlevels;
 
 import com.openwar.openwarfaction.factions.FactionManager;
+import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.PlayerHandler;
 import com.openwar.openwarlevels.handlers.PlayerListener;
 import com.openwar.openwarlevels.level.PlayerDataManager;
@@ -22,8 +23,10 @@ public final class Main extends JavaPlugin {
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
         this.playerDataManager = new PlayerDataManager();
+        this.fm = new FactionManager();
         getServer().getPluginManager().registerEvents(new PlayerListener(playerDataManager), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, playerDataManager, fm), this);
+        getServer().getPluginManager().registerEvents(new LevelLock(this, playerDataManager, fm), this);
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
