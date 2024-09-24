@@ -7,7 +7,6 @@ import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.openwar.openwarfaction.*;
 
 
 import java.util.UUID;
