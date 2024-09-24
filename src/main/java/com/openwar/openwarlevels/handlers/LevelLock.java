@@ -40,20 +40,6 @@ public class LevelLock implements Listener {
         int level = player.getLevel();
         Block block = event.getClickedBlock();
         Material type = block.getType();
-        Location loc = block.getLocation();
-        System.out.println("loc : "+ loc);
-        Chunk chunk = loc.getChunk();
-        System.out.println("Chunk :"+chunk);
-        boolean test = fm.isLandClaimed(chunk);
-        System.out.println("is claimed: "+test);
-        if (fm.isLandClaimed(chunk)) {
-            Faction fac = fm.getFactionByPlayer(player.getUniqueId());
-            Faction facOwnChunk = fm.getFactionByChunk(chunk);
-            System.out.println("Fac Player: "+fac+" Fac Chunk: "+facOwnChunk);
-            if (fac == facOwnChunk){
-                return;
-            }
-        }
         if (LOCK.containsKey(type)) {
             int requiredLevel = LOCK.get(type);
             if (requiredLevel > level) {
@@ -64,7 +50,7 @@ public class LevelLock implements Listener {
     }
 
     @EventHandler
-    public void onBreak(BlockPlaceEvent event) {
+    public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         int level = player.getLevel();
         Block block = event.getBlock();
