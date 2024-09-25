@@ -1,46 +1,50 @@
 package com.openwar.openwarlevels.level;
 
+import com.openwar.openwarfaction.factions.FactionManager;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerDataManager {
 
-    private File file;
     private FileConfiguration playerDataConfig;
+    private Map<UUID, PlayerLevel> playerCache = new HashMap<>();
 
     public PlayerDataManager() {
-        file = new File("plugins/OpenWar-Levels", "players.yml");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        loadConfig();
+    }
+
+    public PlayerLevel loadPlayerData(UUID uuid, FactionManager factionManager) {
+        if (playerCache.containsKey(uuid)) {
+            return playerCache.get(uuid);
         }
-        playerDataConfig = YamlConfiguration.loadConfiguration(file);
-    }
 
-    public void savePlayerData(UUID uuid, PlayerLevel data) {
-        playerDataConfig.set(uuid.toString() + ".level", data.getLevel());
-        playerDataConfig.set(uuid.toString() + ".experience", data.getExperience());
-        saveConfig();
-    }
-
-    public PlayerLevel loadPlayerData(UUID uuid) {
         int level = playerDataConfig.getInt(uuid.toString() + ".level", 0);
-        int experience = playerDataConfig.getInt(uuid.toString() + ".experience", 0);
-        return new PlayerLevel(level, experience);
+        double experience = playerDataConfig.getDouble(uuid.toString() + ".experience", 0);
+        PlayerLevel playerLevel = new PlayerLevel(level, experience, factionManager);
+        playerCache.put(uuid, playerLevel);
+        return playerLevel;
+    }
+
+    public void savePlayerData(UUID uuid, PlayerLevel playerLevel) {
+        playerDataConfig.set(uuid.toString() + ".level", playerLevel.getLevel());
+        playerDataConfig.set(uuid.toString() + ".experience", playerLevel.getExperience());
+        saveConfig();
+        playerCache.put(uuid, playerLevel);
     }
 
     private void saveConfig() {
         try {
-            playerDataConfig.save(file);
+            playerDataConfig.save(new File("plugins/OpenWar-Levels", "players.yml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void loadConfig() {
     }
 }

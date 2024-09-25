@@ -9,6 +9,7 @@ import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -19,7 +20,6 @@ public final class Main extends JavaPlugin {
     private PlayerDataManager playerDataManager;
     private FactionManager fm;
     private PlayerHandler ph;
-    private static final String CSV_FILE_PATH = "plugins/OpenWar-Faction/factions.csv";
 
     @Override
     public void onEnable() {
@@ -27,17 +27,9 @@ public final class Main extends JavaPlugin {
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
         this.playerDataManager = new PlayerDataManager();
-        RegisteredServiceProvider<FactionManager> provider = getServer().getServicesManager().getRegistration(FactionManager.class);
-        if (provider != null) {
-            this.fm = provider.getProvider();
-            System.out.println("FactionManager récupéré avec succès !");
-        } else {
-            System.out.println("Erreur : Impossible de récupérer FactionManager !");
-        }
-        fm.loadFactionsFromCSV(CSV_FILE_PATH);
-        List<Faction> fac= fm.getAllFactions();
-        System.out.println(" faction loaded: "+fac);
-        getServer().getPluginManager().registerEvents(new PlayerListener(playerDataManager), this);
+        RegisteredServiceProvider<FactionManager> factionProvider = getServer().getServicesManager().getRegistration(FactionManager.class);
+        FactionManager factionManager = factionProvider.getProvider();
+        getServer().getPluginManager().registerEvents(new PlayerListener(playerDataManager, fm), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, playerDataManager, fm), this);
         getServer().getPluginManager().registerEvents(new LevelLock(this, playerDataManager, fm), this);
         System.out.println(" ");
@@ -54,7 +46,7 @@ public final class Main extends JavaPlugin {
         System.out.println(" OpenWar - Levels, Saving ...");
         for (Player player : getServer().getOnlinePlayers()) {
             UUID playerUUID = player.getUniqueId();
-            PlayerLevel data = playerDataManager.loadPlayerData(playerUUID);
+            PlayerLevel data = playerDataManager.loadPlayerData(playerUUID, fm);
             playerDataManager.savePlayerData(playerUUID, data);
         }
         System.out.println(" ");

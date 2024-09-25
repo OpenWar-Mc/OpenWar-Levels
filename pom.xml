@@ -74,5 +74,12 @@
           <scope>system</scope>
           <systemPath>${project.basedir}/lib/faction.jar</systemPath>
       </dependency>
+      <dependency>
+          <groupId>com.openwar</groupId>
+          <artifactId>OpenWar-Core</artifactId>
+          <version>1.0</version>
+          <scope>system</scope>
+          <systemPath>${project.basedir}/lib/core.jar</systemPath>
+      </dependency>
   </dependencies>
 </project>

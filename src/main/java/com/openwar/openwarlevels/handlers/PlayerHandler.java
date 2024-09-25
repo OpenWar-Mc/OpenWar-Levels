@@ -26,6 +26,7 @@ public class PlayerHandler implements Listener {
     private final PlayerDataManager data;
     private final FactionManager fm;
     private final JavaPlugin main;
+    private String logo = "§8» §6Levels 8« §7";
 
     private double experience;
     private int expfac;
@@ -55,7 +56,7 @@ public class PlayerHandler implements Listener {
                     double exp = CROPS.get(blockType);
                     showExp(player, exp);
                     lastExpTime = System.currentTimeMillis();
-                    PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
+                    PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
                     playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
                     data.savePlayerData(player.getUniqueId(), playerLevel);
                     if (fm == null) {
@@ -84,7 +85,7 @@ public class PlayerHandler implements Listener {
             expfac+= (int)exp;
             showExp(player, exp);
             lastExpTime = System.currentTimeMillis();
-            PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
+            PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
             playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
             data.savePlayerData(player.getUniqueId(), playerLevel);
             if (fm == null) {
@@ -181,7 +182,7 @@ public class PlayerHandler implements Listener {
     public void showExp(Player player, double exp) {
         experience += exp;
         String formattedExp = String.format("%.1f", experience);
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §8XP"));
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!!"));
     }
     private void checkFactionXp(Player player, Faction fac) {
         int facXP = fac.getExp();
