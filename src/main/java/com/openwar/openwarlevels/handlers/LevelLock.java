@@ -17,7 +17,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class LevelLock implements Listener {
@@ -34,20 +33,20 @@ public class LevelLock implements Listener {
     }
 
 
-    @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        int level = player.getLevel();
-        Block block = event.getClickedBlock();
-        Material type = block.getType();
-        if (LOCK.containsKey(type)) {
-            int requiredLevel = LOCK.get(type);
-            if (requiredLevel > level) {
-                event.setCancelled(true);
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8» §cYou need to be level: §4" + requiredLevel + " §c!"));
-            }
-        }
-    }
+    //@EventHandler
+    //public void onInteract(PlayerInteractEvent event) {
+    //    Player player = event.getPlayer();
+    //    int level = player.getLevel();
+    //    Block block = event.getClickedBlock();
+    //    Material type = block.getType();
+    //    if (LOCK.containsKey(type)) {
+    //        int requiredLevel = LOCK.get(type);
+    //        if (requiredLevel > level) {
+    //            event.setCancelled(true);
+    //            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8» §cYou need to be level: §4" + requiredLevel + " §c!"));
+    //        }
+    //    }
+    //}
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {

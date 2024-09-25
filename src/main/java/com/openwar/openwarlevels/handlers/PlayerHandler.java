@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.handlers;
 
+import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.Main;
 import com.openwar.openwarlevels.level.PlayerDataManager;
@@ -27,6 +28,7 @@ public class PlayerHandler implements Listener {
     private final JavaPlugin main;
 
     private double experience;
+    private int expfac;
     private long lastExpTime;
     private final long EXP_TIMEOUT = 4000;
     private Map<Material, Double> BLOCK = new HashMap<>();
@@ -34,8 +36,9 @@ public class PlayerHandler implements Listener {
 
     public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
-        this.fm = fm;
         this.main = main;
+        this.fm = fm;
+        System.out.println("Faction Manager loaded !");
         loadList();
         startExpTimer();
     }
@@ -53,8 +56,16 @@ public class PlayerHandler implements Listener {
                     showExp(player, exp);
                     lastExpTime = System.currentTimeMillis();
                     PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
-                    playerLevel.setExperience(playerLevel.getExperience() + (int) exp, player);
+                    playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
                     data.savePlayerData(player.getUniqueId(), playerLevel);
+                    if (fm == null) {
+                        System.out.println("FM IS NULL");
+                    }
+                    Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+                    if (fac != null) {
+                        checkFactionXp(player,fac);
+                        System.out.println("Faction : "+fac.getName());
+                    }
                 }
             }
         }
@@ -70,11 +81,20 @@ public class PlayerHandler implements Listener {
         }
         if (BLOCK.containsKey(type)) {
             double exp = BLOCK.get(type);
+            expfac+= (int)exp;
             showExp(player, exp);
             lastExpTime = System.currentTimeMillis();
             PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
-            playerLevel.setExperience(playerLevel.getExperience() + (int) exp, player);
+            playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
             data.savePlayerData(player.getUniqueId(), playerLevel);
+            if (fm == null) {
+                System.out.println("FM IS NULL");
+            }
+            Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+            if (fac != null) {
+                checkFactionXp(player,fac);
+                System.out.println("Faction : "+fac.getName());
+            }
         }
     }
 
@@ -162,5 +182,22 @@ public class PlayerHandler implements Listener {
         experience += exp;
         String formattedExp = String.format("%.1f", experience);
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §8XP"));
+    }
+    private void checkFactionXp(Player player, Faction fac) {
+        int facXP = fac.getExp();
+        int facLVL = fac.getLevel();
+        float requiredXP = facLVL*23.6F;
+        System.out.println("Required Exp to gain faction exp: "+requiredXP);
+        if (expfac >= requiredXP) {
+            expfac = 0;
+            int xp = calcFac(player.getLevel());
+            fac.addExp(xp);
+        }
+    }
+    private int calcFac(int playerLVL) {
+        int exp = 0;
+        exp = playerLVL*10+playerLVL/2+8;
+        System.out.println("Experience gagner par la faction: "+exp);
+        return exp;
     }
 }
