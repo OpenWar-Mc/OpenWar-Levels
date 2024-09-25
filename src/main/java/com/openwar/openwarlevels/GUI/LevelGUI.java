@@ -45,12 +45,12 @@ public class LevelGUI {
         //TODO LEADERBOARD, HEAD OF PLAYER INFO, UNLOCK MENU
 
 
-        menu.setItem(24, factionLevelItem);
-        menu.setItem(30, infoItem);
-        menu.setItem(32, upgradeItem);
-        menu.setItem(20, leaderHead);
-        menu.setItem(22, fperm);
-
+        //menu.setItem(24, factionLevelItem);
+        //menu.setItem(30, infoItem);
+        //menu.setItem(32, upgradeItem);
+        //menu.setItem(20, leaderHead);
+        //menu.setItem(22, fperm);
+//
         player.openInventory(menu);
     }
 
