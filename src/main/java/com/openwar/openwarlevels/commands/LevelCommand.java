@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 public class LevelCommand implements CommandExecutor {
     private String logo = "§8» §6Levels 8« §7";
-
+    private String usage = "§fUsage: §c/lvl";
 
 
     @Override
@@ -16,6 +16,7 @@ public class LevelCommand implements CommandExecutor {
             sender.sendMessage(logo + "§cThis command can only be used by players.");
             return true;
         }
+        Player player = (((Player) sender).getPlayer());
 
 
 

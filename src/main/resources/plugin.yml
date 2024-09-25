@@ -2,3 +2,12 @@ name: OpenWar-Levels
 version: '${project.version}'
 main: com.openwar.openwarlevels.Main
 depend: [OpenWar-Core]
+commands:
+  level:
+    description: Level commands
+    usage: /lvl | level
+    aliases:
+      - lvl
+  leveladmin:
+    description: Level admin commands
+    usage: /leveladmin
