@@ -58,13 +58,9 @@ public class PlayerHandler implements Listener {
                     PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
                     playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
                     data.savePlayerData(player.getUniqueId(), playerLevel);
-                    if (fm == null) {
-                        System.out.println("FM IS NULL");
-                    }
                     Faction fac = fm.getFactionByPlayer(player.getUniqueId());
                     if (fac != null) {
                         checkFactionXp(player,fac);
-                        System.out.println("Faction : "+fac.getName());
                     }
                 }
             }
@@ -87,13 +83,9 @@ public class PlayerHandler implements Listener {
             PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
             playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
             data.savePlayerData(player.getUniqueId(), playerLevel);
-            if (fm == null) {
-                System.out.println("FM IS NULL");
-            }
             Faction fac = fm.getFactionByPlayer(player.getUniqueId());
             if (fac != null) {
                 checkFactionXp(player,fac);
-                System.out.println("Faction : "+fac.getName());
             }
         }
     }
@@ -186,8 +178,7 @@ public class PlayerHandler implements Listener {
     private void checkFactionXp(Player player, Faction fac) {
         int facXP = fac.getExp();
         int facLVL = fac.getLevel();
-        float requiredXP = facLVL*23.6F;
-        System.out.println("Required Exp to gain faction exp: "+requiredXP);
+        float requiredXP = facLVL*78.6F;
         if (expfac >= requiredXP) {
             expfac = 0;
             int xp = calcFac(player.getLevel());
@@ -197,7 +188,6 @@ public class PlayerHandler implements Listener {
     private int calcFac(int playerLVL) {
         int exp = 0;
         exp = playerLVL*10+playerLVL/2+8;
-        System.out.println("Experience gagner par la faction: "+exp);
         return exp;
     }
 }
