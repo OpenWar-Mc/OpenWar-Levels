@@ -8,6 +8,7 @@ import com.openwar.openwarlevels.handlers.PlayerListener;
 import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -26,7 +27,13 @@ public final class Main extends JavaPlugin {
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
         this.playerDataManager = new PlayerDataManager();
-        this.fm = new FactionManager();
+        RegisteredServiceProvider<FactionManager> provider = getServer().getServicesManager().getRegistration(FactionManager.class);
+        if (provider != null) {
+            this.fm = provider.getProvider();
+            System.out.println("FactionManager récupéré avec succès !");
+        } else {
+            System.out.println("Erreur : Impossible de récupérer FactionManager !");
+        }
         fm.loadFactionsFromCSV(CSV_FILE_PATH);
         List<Faction> fac= fm.getAllFactions();
         System.out.println(" faction loaded: "+fac);
