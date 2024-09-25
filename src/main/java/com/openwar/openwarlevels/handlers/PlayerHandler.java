@@ -39,7 +39,6 @@ public class PlayerHandler implements Listener {
         this.data = data;
         this.main = main;
         this.fm = fm;
-        System.out.println("Faction Manager loaded !");
         loadList();
         startExpTimer();
     }

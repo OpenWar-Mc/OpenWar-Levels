@@ -2,6 +2,7 @@ package com.openwar.openwarlevels.level;
 
 import com.openwar.openwarfaction.factions.FactionManager;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,5 +47,15 @@ public class PlayerDataManager {
     }
 
     private void loadConfig() {
+        File file = new File("plugins/OpenWar-Levels", "players.yml");
+        if (!file.exists()) {
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        playerDataConfig = YamlConfiguration.loadConfiguration(file);
     }
 }
