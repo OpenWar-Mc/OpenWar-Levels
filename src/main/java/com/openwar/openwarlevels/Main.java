@@ -18,19 +18,24 @@ public final class Main extends JavaPlugin {
     private FactionManager fm;
     private PlayerHandler ph;
 
+    private boolean setupDepend() {
+        RegisteredServiceProvider<PlayerDataManager> levelProvider = getServer().getServicesManager().getRegistration(PlayerDataManager.class);
+        RegisteredServiceProvider<FactionManager> factionDataProvider = getServer().getServicesManager().getRegistration(FactionManager.class);
+        if (levelProvider == null || factionDataProvider == null) {
+            System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!");
+            return false;
+        }
+        pl = levelProvider.getProvider();
+        fm = factionDataProvider.getProvider();
+        return true;
+    }
+
     @Override
     public void onEnable() {
         System.out.println("====================================");
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
-
-        RegisteredServiceProvider<PlayerDataManager> levelProvider = getServer().getServicesManager().getRegistration(PlayerDataManager.class);
-        RegisteredServiceProvider<FactionManager> factionDataProvider = getServer().getServicesManager().getRegistration(FactionManager.class);
-        pl = levelProvider.getProvider();
-        fm = factionDataProvider.getProvider();
-
-
-
+        if (!setupDepend()) {return;}
         getServer().getPluginManager().registerEvents(new PlayerListener(pl, fm), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new LevelLock(this, pl, fm), this);
@@ -55,9 +60,5 @@ public final class Main extends JavaPlugin {
         System.out.println(" OpenWar - Levels, Saved !");
         System.out.println(" ");
         System.out.println("====================================");
-    }
-
-    public PlayerDataManager getPlayerDataManager() {
-        return pl;
     }
 }
