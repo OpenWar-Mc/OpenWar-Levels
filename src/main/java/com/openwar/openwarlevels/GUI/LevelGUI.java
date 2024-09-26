@@ -47,7 +47,7 @@ public class LevelGUI {
 
     public void openLevelGUI(Player player) {
         UUID playerUUID = player.getUniqueId();
-        Inventory menu = Bukkit.createInventory(null, 27, "§8§k§l!! §c§lLevel §f- §cGUI §8§k§l!!");
+        Inventory menu = Bukkit.createInventory(null, 27, "§8§k§l!!§r §c§lLevel §f- §c§lGUI §8§k§l!!");
         addBorders(menu, 3);
 
         //TODO LEADERBOARD, HEAD OF PLAYER INFO, UNLOCK MENU
