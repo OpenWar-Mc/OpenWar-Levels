@@ -6,6 +6,7 @@ import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -28,6 +29,9 @@ public class LevelGUI {
             if (i < 9 || (i % 9 == 0) || (i % 9 == 8) || (i >= size - 9)) {
                 ItemStack pane = createColoredGlassPane(Material.STAINED_GLASS_PANE, (short) 15, " ");
                 inv.setItem(i, pane);
+            }  else {
+                ItemStack pane = createColoredGlassPane(Material.STAINED_GLASS_PANE, (short) 0, " ");
+                inv.setItem(i, pane);
             }
         }
     }
@@ -43,13 +47,14 @@ public class LevelGUI {
 
     public void openLevelGUI(Player player) {
         UUID playerUUID = player.getUniqueId();
-        Inventory menu = Bukkit.createInventory(null, 36, "§c§lLevel §f - §4" + player.getName());
-        addBorders(menu, 4);
+        Inventory menu = Bukkit.createInventory(null, 27, "§c§lLevel §f - §4" + player.getName());
+        addBorders(menu, 3);
 
         //TODO LEADERBOARD, HEAD OF PLAYER INFO, UNLOCK MENU
 
-        menu.setItem(24, getPlayerHeadInfo(player.getName()));
-        menu.setItem(26, getIconItem(Material.DIAMOND_HELMET, "§cLeaderboards", "§7Click here to see", null, null));
+        menu.setItem(11, getPlayerHeadInfo(player.getName()));
+        menu.setItem(13, getLeaderboard());
+        menu.setItem(15, getUnlock());
 
         player.openInventory(menu);
     }
@@ -74,10 +79,10 @@ public class LevelGUI {
             meta.setOwningPlayer(player);
             meta.setDisplayName("§4§l" + playerName);
             meta.setLore(Arrays.asList(
-                    "§8Level : §c" + level,
-                    "§7Progression: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%"
+                    "§7Level §8: §c" + level,
+                    "§7exp §8: §c"+xp+"§8/§c"+nextLevelXp,
+                    "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%"
             ));
-
             playerHead.setItemMeta(meta);
         }
         return playerHead;
@@ -104,4 +109,29 @@ public class LevelGUI {
         }
         return bar.toString();
     }
+    public static ItemStack getLeaderboard() {
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+        if (skullMeta != null) {
+            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("Kevos"));
+            skullMeta.setDisplayName("§4§lLeaderBoard §f- §cServers");
+            skull.setItemMeta(skullMeta);
+            skullMeta.setLore(Arrays.asList("§7Every Players Levels"));
+        }
+
+        return skull;
+    }
+    public static ItemStack getUnlock() {
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+        if (skullMeta != null) {
+            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("Addelburgh"));
+            skullMeta.setDisplayName("§4§lUnlocked §f §cItems");
+            skull.setItemMeta(skullMeta);
+            skullMeta.setLore(Arrays.asList("§7Every items you have unlocked !"));
+        }
+
+        return skull;
+    }
+
 }
