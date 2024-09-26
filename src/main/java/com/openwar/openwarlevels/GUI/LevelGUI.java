@@ -2,13 +2,17 @@ package com.openwar.openwarlevels.GUI;
 
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarlevels.level.PlayerDataManager;
+import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class LevelGUI {
@@ -56,4 +60,29 @@ public class LevelGUI {
 
 
 
+    public ItemStack getPlayerHeadInfo(String playerName) {
+        ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
+        if (meta != null) {
+            OfflinePlayer leader = Bukkit.getOfflinePlayer(playerName);
+            PlayerLevel playerLevel = playerDataManager.loadPlayerData(leader.getUniqueId(), null);
+            int level = playerLevel.getLevel();
+            meta.setOwningPlayer(leader);
+            meta.setDisplayName("§4§l"+playerName);
+            meta.setLore(Arrays.asList(""));
+            playerHead.setItemMeta(meta);
+        }
+        return playerHead;
+    }
+
+
+    public ItemStack getIconItem(Material material, String name, String lore1, String lore2, String lore3) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(name);
+            meta.setLore(Arrays.asList(lore1, lore2, lore3));
+        }
+        return item;
+    }
 }
