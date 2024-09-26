@@ -47,7 +47,7 @@ public class LevelGUI {
 
     public void openLevelGUI(Player player) {
         UUID playerUUID = player.getUniqueId();
-        Inventory menu = Bukkit.createInventory(null, 27, "§c§lLevel §f - §4" + player.getName());
+        Inventory menu = Bukkit.createInventory(null, 27, "§8§k§l!! §c§lLevel §f- §cGUI §8§k§l!!");
         addBorders(menu, 3);
 
         //TODO LEADERBOARD, HEAD OF PLAYER INFO, UNLOCK MENU
@@ -80,7 +80,7 @@ public class LevelGUI {
             meta.setDisplayName("§4§l" + playerName);
             meta.setLore(Arrays.asList(
                     "§7Level §8: §c" + level,
-                    "§7exp §8: §c"+xp+"§8/§c"+nextLevelXp,
+                    "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
                     "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%"
             ));
             playerHead.setItemMeta(meta);
@@ -115,8 +115,8 @@ public class LevelGUI {
         if (skullMeta != null) {
             skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("Kevos"));
             skullMeta.setDisplayName("§4§lLeaderBoard §f- §cServers");
+            skullMeta.setLore(Arrays.asList("§7Every players levels !"));
             skull.setItemMeta(skullMeta);
-            skullMeta.setLore(Arrays.asList("§7Every Players Levels"));
         }
 
         return skull;
@@ -126,9 +126,9 @@ public class LevelGUI {
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         if (skullMeta != null) {
             skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("Addelburgh"));
-            skullMeta.setDisplayName("§4§lUnlocked §f §cItems");
-            skull.setItemMeta(skullMeta);
+            skullMeta.setDisplayName("§4§lUnlocked §f- §cItems");
             skullMeta.setLore(Arrays.asList("§7Every items you have unlocked !"));
+            skull.setItemMeta(skullMeta);
         }
 
         return skull;
