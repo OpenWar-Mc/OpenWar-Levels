@@ -48,13 +48,9 @@ public class LevelGUI {
 
         //TODO LEADERBOARD, HEAD OF PLAYER INFO, UNLOCK MENU
 
+        menu.setItem(24, getPlayerHeadInfo(player.getName()));
+        menu.setItem(26, getIconItem(Material.DIAMOND_HELMET, "§cLeaderboards", "§7Click here to see", null, null));
 
-        //menu.setItem(24, factionLevelItem);
-        //menu.setItem(30, infoItem);
-        //menu.setItem(32, upgradeItem);
-        //menu.setItem(20, leaderHead);
-        //menu.setItem(22, fperm);
-//
         player.openInventory(menu);
     }
 
@@ -64,12 +60,24 @@ public class LevelGUI {
         ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
         if (meta != null) {
-            OfflinePlayer leader = Bukkit.getOfflinePlayer(playerName);
-            PlayerLevel playerLevel = playerDataManager.loadPlayerData(leader.getUniqueId(), null);
+            OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
+            PlayerLevel playerLevel = playerDataManager.loadPlayerData(player.getUniqueId(), null);
+
             int level = playerLevel.getLevel();
-            meta.setOwningPlayer(leader);
-            meta.setDisplayName("§4§l"+playerName);
-            meta.setLore(Arrays.asList(""));
+            double xp = playerLevel.getExperience();
+            double currentLevelXp = playerLevel.getExpCurrentLevel();
+            double nextLevelXp = playerLevel.getExpNextLevel();
+            double percent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
+
+            int progress = (int) ((percent / 100) * 10);
+
+            meta.setOwningPlayer(player);
+            meta.setDisplayName("§4§l" + playerName);
+            meta.setLore(Arrays.asList(
+                    "§8Level : §c" + level,
+                    "§7Progression: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%"
+            ));
+
             playerHead.setItemMeta(meta);
         }
         return playerHead;
@@ -84,5 +92,16 @@ public class LevelGUI {
             meta.setLore(Arrays.asList(lore1, lore2, lore3));
         }
         return item;
+    }
+    private String getProgressBar(int progress, int total) {
+        StringBuilder bar = new StringBuilder();
+        for (int i = 0; i < total; i++) {
+            if (i < progress) {
+                bar.append("§c█");
+            } else {
+                bar.append("§7█");
+            }
+        }
+        return bar.toString();
     }
 }

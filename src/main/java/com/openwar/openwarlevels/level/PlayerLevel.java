@@ -34,6 +34,15 @@ public class PlayerLevel {
         checkLevelUp(player);
     }
 
+    public double getExpNextLevel() {
+        if (level >= expRequis.length - 1) return expRequis[expRequis.length - 1];
+        return expRequis[level + 1];
+    }
+
+    public double getExpCurrentLevel() {
+        return expRequis[level];
+    }
+
     private void checkLevelUp(Player player) {
         int currentLevel = this.level;
         while (currentLevel < expRequis.length - 1 && this.experience >= expRequis[currentLevel + 1]) {
