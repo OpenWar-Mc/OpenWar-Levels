@@ -3,6 +3,7 @@ package com.openwar.openwarlevels.handlers;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.level.PlayerDataManager;
+import com.openwar.openwarlevels.level.PlayerLevel;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
@@ -51,7 +52,8 @@ public class LevelLock implements Listener {
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        int level = player.getLevel();
+        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), null);
+        int level = playerLevel.getLevel();
         Block block = event.getBlock();
         Material type = block.getType();
         if (LOCK.containsKey(type)) {
@@ -65,7 +67,7 @@ public class LevelLock implements Listener {
 
     public static void loadLock() {
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 10);
-        LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);
+        //LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_generic"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_strong"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_flare"), 15);
@@ -117,8 +119,8 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:missile_inferno"), 38);
         LOCK.put(Material.matchMaterial("hbm:missile_rain"), 38);
         LOCK.put(Material.matchMaterial("hbm:missile_drill"), 38);
-        LOCK.put(Material.matchMaterial("hbm:therm_endo"), 40);
-        LOCK.put(Material.matchMaterial("hbm:therm_exo"), 40);
+        LOCK.put(Material.matchMaterial("hbm:missile_endo"), 40);
+        LOCK.put(Material.matchMaterial("hbm:missile_exo"), 40);
         LOCK.put(Material.matchMaterial("hbm:missile_micro"), 40);
         LOCK.put(Material.matchMaterial("hbm:det_nuke"), 41);
         LOCK.put(Material.matchMaterial("hbm:weapon_workbench"), 43);

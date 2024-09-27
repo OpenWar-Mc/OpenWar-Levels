@@ -8,15 +8,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Skull;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class LevelGUI {
 
@@ -69,36 +69,85 @@ public class LevelGUI {
         addBorders(menu, 6);
 
 
+        player.openInventory(menu);
+
+
 
     }
 
     //====================================================== OPEN UNLOCK GUI ==================================
 
-    public void openUnlock(Player player) {
-        UUID playerUUID = player.getUniqueId();
-        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §c§lUnlock §f- §c§l"+player.getName()+" §8§k§l!!");
+
+    public void openLeaderBoardPage(Player player, int page, int totalPages) {
+        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §f- §4§lOpenWar §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
         addBorders(menu, 6);
-        LevelLock.loadLock();
-        int size = LevelLock.LOCK.size();
-        for ()
+        OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
+        int startIndex = (page - 1) * 36;
+        int endIndex = Math.min(startIndex + 36, offlinePlayers.length);
+        int index = 10;
+        for (OfflinePlayer target : offlinePlayers) {
+            UUID uuid = target.getUniqueId();
+            int level = playerDataManager.loadPlayerData(uuid, null).getLevel();
+            double xp = playerDataManager.loadPlayerData(uuid, null).getExperience();
+            ItemStack head = getHeadItem(target.getName(), "§c"+target.getName(), "§8Level : §c"+ level, "§8Experience : §c"+xp, "");
+            for (int i = startIndex; i < endIndex; i++) {
+                ItemStack itemFinal;
+                menu.setItem(index, head);
+                if (index == 16 || index == 25 || index == 34)
+                {
+                    index= index+2;
+                } else if (index == 43) {
+                    index = 36;
+                }
+                index++;
+            }
+        }
+        addNavigationButtons(menu, page, totalPages);
+        player.openInventory(menu);
     }
 
-    private void leaderBoards(Inventory inv) {
-        int slot = 10;
-        int totalItems = 300;
-        for (int i = 0; i < totalItems; i++) {
+    public void openUnlockPage(Player player, int page, int totalPages, List<Map.Entry<Material, Integer>> lockList, int playerLevel) {
+        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lUnlock §f- §4§l" + player.getName() + " §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
+        addBorders(menu, 6);
+        List<Map.Entry<Material, Integer>> sortedLockList = getSortedLockList();
+        int startIndex = (page - 1) * 36;
+        int endIndex = Math.min(startIndex + 36, lockList.size());
 
-
-
-            if (slot == 16 || slot == 25 || slot == 34)
-            {
-                slot= slot+2;
+        int index = 10;
+        for (int i = startIndex; i < endIndex; i++) {
+            Map.Entry<Material, Integer> entry = sortedLockList.get(i);
+            Material material = entry.getKey();
+            int lockLevel = entry.getValue();
+            if (material == null) {
+                System.err.println("Material at index " + i + " is null.");
+                continue;
             }
-            slot++;
+
+            ItemStack itemFinal;
+            if (lockLevel > playerLevel) {
+                itemFinal = getIconItem(material, "§8» §4Locked §8«", "§f=============", "§cRequired level: §4"+lockLevel, "§f=============");
+            } else {
+                itemFinal = getIconItem(material, "§8» §2Unlocked §8«", "§f=============", "§2Required level: §a"+lockLevel, "§f=============");
+            }
+            menu.setItem(index, itemFinal);
+            if (index == 16 || index == 25 || index == 34)
+            {
+                index= index+2;
+            } else if (index == 43) {
+                index = 36;
+            }
+            index++;
         }
 
+        addNavigationButtons(menu, page, totalPages);
+        player.openInventory(menu);
     }
-
+    public List<Map.Entry<Material, Integer>> getSortedLockList() {
+        return LevelLock.LOCK.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
+    }
 
     public ItemStack getPlayerHeadInfo(String playerName) {
         ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
@@ -127,15 +176,56 @@ public class LevelGUI {
         return playerHead;
     }
 
+    private void addNavigationButtons(Inventory menu, int currentPage, int totalPages) {
+        if (currentPage > 1) {
+            ItemStack prevPage = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14);
+            ItemMeta prevMeta = prevPage.getItemMeta();
+            prevMeta.setDisplayName("§8<< §cPrevious Page");
+            prevPage.setItemMeta(prevMeta);
+            menu.setItem(48, prevPage);
+        }
+
+        if (currentPage < totalPages) {
+            ItemStack nextPage = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5);
+            ItemMeta nextMeta = nextPage.getItemMeta();
+            nextMeta.setDisplayName("§aNext Page §8>>");
+            nextPage.setItemMeta(nextMeta);
+            menu.setItem(50, nextPage);
+        }
+    }
+
+    public int getPlayerLevel(UUID playerUUID) {
+        return playerDataManager.loadPlayerData(playerUUID, null).getLevel();
+    }
+
+    public List<Map.Entry<Material, Integer>> getLockList() {
+        return new ArrayList<>(LevelLock.LOCK.entrySet());
+    }
+
+    public int getTotalPages(String gui) {
+        int i = 0;
+        if (gui.equals("unlock")) {
+            i = (int) Math.ceil((double) getLockList().size() / 36);
+        }
+        if (gui.equals("leader")) {
+            OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
+            i = (int) Math.ceil((double) offlinePlayers.length / 36);
+        }
+        return i;
+    }
+
 
     private ItemStack getIconItem(Material material, String name, String lore1, String lore2, String lore3) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(name);
+            lore1 = lore1 != null ? lore1 : "";
+            lore2 = lore2 != null ? lore2 : "";
+            lore3 = lore3 != null ? lore3 : "";
             meta.setLore(Arrays.asList(lore1, lore2, lore3));
+            item.setItemMeta(meta);
         }
-        item.setItemMeta(meta);
         return item;
     }
 

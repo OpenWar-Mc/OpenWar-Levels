@@ -9,29 +9,96 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class MenuHandler implements Listener {
     private PlayerDataManager playerDataManager;
-    private  LevelGUI gui;
+    private LevelGUI gui;
+    private Map<UUID, Integer> playerPages;
+    private Map<UUID, Integer> leaderPages;
 
     public MenuHandler(PlayerDataManager playerDataManager, LevelGUI gui) {
         this.playerDataManager = playerDataManager;
         this.gui = gui;
+        this.playerPages = new HashMap<>();
+        this.leaderPages = new HashMap<>();
     }
+
+
+
+
+    public int getCurrentPage(UUID playerUUID, String gui) {
+        if (gui.equals("unlock")) {
+            return playerPages.getOrDefault(playerUUID, 1);
+        }
+        if (gui.equals("leader")) {
+            return leaderPages.getOrDefault(playerUUID, 1);
+        }
+        return 0;
+    }
+
+    public void setCurrentPage(UUID playerUUID, int page, String gui) {
+        if (gui.equals("unlock")) {
+            playerPages.put(playerUUID, page);
+        }
+        if (gui.equals("leader")) {
+            leaderPages.put(playerUUID, page);
+        }
+    }
+
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         InventoryView view = event.getView();
         Inventory topInventory = view.getTopInventory();
+        UUID playerUUID = player.getUniqueId();
 
         if (view.getTitle().contains("§8§k§l!!§r §c§lLevel §f- §c§lGUI §8§k§l!!")) {
             event.setCancelled(true);
             int slot = event.getSlot();
             if (slot == 13) {
-                gui.openUnlock(player);
+                gui.openLeaderBoardPage(player,1, gui.getTotalPages("unlock"));
             }
             if (slot == 15) {
-                gui.openLeaderboards(player);
+                gui.openUnlockPage(player, 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(player.getUniqueId()));
+            }
+        }
+
+        if (view.getTitle().startsWith("§8§k§l!!§r §4§lUnlock §f- §4§l")) {
+            event.setCancelled(true);
+            int slot = event.getSlot();
+            if (slot == 48) {
+                int currentPage = getCurrentPage(playerUUID, "unlock");
+                if (currentPage > 1) {
+                    setCurrentPage(playerUUID, currentPage - 1,"unlock");
+                    gui.openUnlockPage(player, currentPage - 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                }
+            } else if (slot == 50) {
+                int currentPage = getCurrentPage(playerUUID, "unlock");
+                if (currentPage < gui.getTotalPages("unlock")) {
+                    setCurrentPage(playerUUID, currentPage + 1,"unlock");
+                    gui.openUnlockPage(player, currentPage + 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                }
+            }
+        }
+        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §f- §4§lOpenWar §8§k§l!!§r")) {
+            event.setCancelled(true);
+            int slot = event.getSlot();
+            if (slot == 48) {
+                int currentPage = getCurrentPage(playerUUID, "leader");
+                if (currentPage > 1) {
+                    setCurrentPage(playerUUID, currentPage - 1,"leader");
+                    gui.openUnlockPage(player, currentPage - 1, gui.getTotalPages("leader"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                }
+            } else if (slot == 50) {
+                int currentPage = getCurrentPage(playerUUID, "leader");
+                if (currentPage < gui.getTotalPages("leader")) {
+                    setCurrentPage(playerUUID, currentPage + 1,"leader");
+                    gui.openUnlockPage(player, currentPage + 1, gui.getTotalPages("leader"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                }
             }
         }
     }
