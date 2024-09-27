@@ -27,14 +27,11 @@ public class MenuHandler implements Listener {
         if (view.getTitle().contains("§8§k§l!!§r §c§lLevel §f- §c§lGUI §8§k§l!!")) {
             event.setCancelled(true);
             int slot = event.getSlot();
-            if (slot == 11) {
-
-            }
             if (slot == 13) {
-
+                gui.openUnlock(player);
             }
             if (slot == 15) {
-
+                gui.openLeaderboards(player);
             }
         }
     }

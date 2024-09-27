@@ -23,7 +23,7 @@ public class LevelLock implements Listener {
     private PlayerDataManager data;
     private FactionManager fm;
     private JavaPlugin main;
-    private Map<Material, Integer> LOCK = new HashMap<>();
+    public static Map<Material, Integer> LOCK = new HashMap<>();
 
     public LevelLock(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
