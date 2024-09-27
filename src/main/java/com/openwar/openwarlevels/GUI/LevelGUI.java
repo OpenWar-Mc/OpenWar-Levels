@@ -62,24 +62,9 @@ public class LevelGUI {
 
         player.openInventory(menu);
     }
-//=================================================== OPEN LEADERBOARDS TO PLAYER ==========================
-    public void openLeaderboards(Player player){
-        UUID playerUUID = player.getUniqueId();
-        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §c§lLeaderBoards §f- §c§lOpenWar §8§k§l!!");
-        addBorders(menu, 6);
-
-
-        player.openInventory(menu);
-
-
-
-    }
-
-    //====================================================== OPEN UNLOCK GUI ==================================
-
-
+    //=================================================== OPEN LEADERBOARDS TO PLAYER ==========================
     public void openLeaderBoardPage(Player player, int page, int totalPages) {
-        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §f- §4§lOpenWar §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
+        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
         addBorders(menu, 6);
         OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
         int startIndex = (page - 1) * 36;
@@ -89,10 +74,16 @@ public class LevelGUI {
             UUID uuid = target.getUniqueId();
             int level = playerDataManager.loadPlayerData(uuid, null).getLevel();
             double xp = playerDataManager.loadPlayerData(uuid, null).getExperience();
-            ItemStack head = getHeadItem(target.getName(), "§c"+target.getName(), "§8Level : §c"+ level, "§8Experience : §c"+xp, "");
+            double currentLevelXp = playerDataManager.loadPlayerData(uuid, null).getExpCurrentLevel();
+            double nextLevelXp = playerDataManager.loadPlayerData(uuid, null).getExpNextLevel();
+            double percent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
+            int progress = (int) ((percent / 100) * 10);
+            ItemStack head = getHeadItem(target.getName(), "§c"+target.getName(),
+                    "§7Level §8: §c"+ level,
+                    "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
+                    "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%");
+            menu.setItem(index, head);
             for (int i = startIndex; i < endIndex; i++) {
-                ItemStack itemFinal;
-                menu.setItem(index, head);
                 if (index == 16 || index == 25 || index == 34)
                 {
                     index= index+2;

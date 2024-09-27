@@ -84,7 +84,7 @@ public class MenuHandler implements Listener {
                 }
             }
         }
-        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §f- §4§lOpenWar §8§k§l!!§r")) {
+        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r")) {
             event.setCancelled(true);
             int slot = event.getSlot();
             if (slot == 48) {
