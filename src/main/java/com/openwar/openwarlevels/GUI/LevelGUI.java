@@ -121,7 +121,7 @@ public class LevelGUI {
             if (lockLevel > playerLevel) {
                 itemFinal = getIconItem(material, "§8» §4Locked §8«", "§f=============", "§cRequired level: §4"+lockLevel, "§f=============");
             } else {
-                itemFinal = getIconItem(material, "§8» §2Unlocked §8«", "§f=============", "§2Required level: §a"+lockLevel, "§f=============");
+                itemFinal = getIconItem(material, "§8» §2Unlocked §8«", "§f=============", "§aRequired level: §2"+lockLevel, "§f=============");
             }
             menu.setItem(index, itemFinal);
             if (index == 16 || index == 25 || index == 34)
