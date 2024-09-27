@@ -21,12 +21,10 @@ import java.util.UUID;
 public class LevelGUI {
 
     private PlayerDataManager playerDataManager;
-    private LevelLock lock;
 
 
-    public LevelGUI(PlayerDataManager playerDataManager, LevelLock lock) {
+    public LevelGUI(PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
-        this.lock = lock;
     }
 
     private void addBorders(Inventory inv, int rows) {
@@ -80,7 +78,7 @@ public class LevelGUI {
         UUID playerUUID = player.getUniqueId();
         Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §c§lUnlock §f- §c§l"+player.getName()+" §8§k§l!!");
         addBorders(menu, 6);
-        lock.loadLock();
+        LevelLock.loadLock();
         int size = LevelLock.LOCK.size();
         for ()
     }
