@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class LevelGUI {
 
     private PlayerDataManager playerDataManager;
-
+    public Map<ItemStack, Integer> List = Collections.emptyMap();
 
     public LevelGUI(PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
@@ -67,9 +67,11 @@ public class LevelGUI {
         Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
         addBorders(menu, 6);
         OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
+        Map<ItemStack, Integer> List = Collections.emptyMap();
         int startIndex = (page - 1) * 36;
         int endIndex = Math.min(startIndex + 36, offlinePlayers.length);
         int index = 10;
+        ItemStack head = null;
         for (OfflinePlayer target : offlinePlayers) {
             UUID uuid = target.getUniqueId();
             int level = playerDataManager.loadPlayerData(uuid, null).getLevel();
@@ -78,20 +80,21 @@ public class LevelGUI {
             double nextLevelXp = playerDataManager.loadPlayerData(uuid, null).getExpNextLevel();
             double percent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
             int progress = (int) ((percent / 100) * 10);
-            ItemStack head = getHeadItem(target.getName(), "§c"+target.getName(),
-                    "§7Level §8: §c"+ level,
-                    "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
+            head = getHeadItem(target.getName(), "§c" + target.getName(),
+                    "§7Level §8: §c" + level,
+                    "§7Experience §8: §c" + String.format("%.2f", xp) + "§8/§c" + String.format("%.2f", nextLevelXp),
                     "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%");
+            List.put(head, level);
+        }
+        for (int i = startIndex; i < endIndex; i++) {
             menu.setItem(index, head);
-            for (int i = startIndex; i < endIndex; i++) {
-                if (index == 16 || index == 25 || index == 34)
-                {
-                    index= index+2;
-                } else if (index == 43) {
-                    index = 36;
-                }
-                index++;
+            if (index == 16 || index == 25 || index == 34)
+            {
+                index= index+2;
+            } else if (index == 43) {
+                index = 36;
             }
+            index++;
         }
         addNavigationButtons(menu, page, totalPages);
         player.openInventory(menu);
@@ -135,6 +138,12 @@ public class LevelGUI {
     }
     public List<Map.Entry<Material, Integer>> getSortedLockList() {
         return LevelLock.LOCK.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
+    }
+    public List<Map.Entry<ItemStack, Integer>> getSortedLockListleader() {
+        return LisentrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toList());
