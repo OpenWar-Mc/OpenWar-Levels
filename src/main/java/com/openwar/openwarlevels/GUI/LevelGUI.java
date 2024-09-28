@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class LevelGUI {
 
     private PlayerDataManager playerDataManager;
-    public Map<ItemStack, Integer> List = Collections.emptyMap();
+    private Map<UUID, ItemStack> leaderboardCache = new HashMap<>();
 
     public LevelGUI(PlayerDataManager playerDataManager) {
         this.playerDataManager = playerDataManager;
@@ -53,9 +53,6 @@ public class LevelGUI {
         UUID playerUUID = player.getUniqueId();
         Inventory menu = Bukkit.createInventory(null, 27, "§8§k§l!!§r §c§lLevel §f- §c§lGUI §8§k§l!!");
         addBorders(menu, 3);
-
-        //TODO LEADERBOARD, HEAD OF PLAYER INFO, UNLOCK MENU
-
         menu.setItem(11, getPlayerHeadInfo(player.getName()));
         menu.setItem(13, getLeaderboard());
         menu.setItem(15, getUnlock());
@@ -63,42 +60,101 @@ public class LevelGUI {
         player.openInventory(menu);
     }
     //=================================================== OPEN LEADERBOARDS TO PLAYER ==========================
-    public void openLeaderBoardPage(Player player, int page, int totalPages) {
-        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
-        addBorders(menu, 6);
+    public void generateLeaderboardCache() {
         OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-        Map<ItemStack, Integer> List = Collections.emptyMap();
-        int startIndex = (page - 1) * 36;
-        int endIndex = Math.min(startIndex + 36, offlinePlayers.length);
-        int index = 10;
-        ItemStack head = null;
         for (OfflinePlayer target : offlinePlayers) {
             UUID uuid = target.getUniqueId();
-            int level = playerDataManager.loadPlayerData(uuid, null).getLevel();
-            double xp = playerDataManager.loadPlayerData(uuid, null).getExperience();
-            double currentLevelXp = playerDataManager.loadPlayerData(uuid, null).getExpCurrentLevel();
-            double nextLevelXp = playerDataManager.loadPlayerData(uuid, null).getExpNextLevel();
+            PlayerLevel playerLevel = playerDataManager.loadPlayerData(uuid, null);
+            int level = playerLevel.getLevel();
+            double xp = playerLevel.getExperience();
+            double currentLevelXp = playerLevel.getExpCurrentLevel();
+            double nextLevelXp = playerLevel.getExpNextLevel();
             double percent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
             int progress = (int) ((percent / 100) * 10);
-            head = getHeadItem(target.getName(), "§c" + target.getName(),
+
+
+            ItemStack head = getHeadItem(target.getName(),
+                    "§c" + target.getName(),
                     "§7Level §8: §c" + level,
                     "§7Experience §8: §c" + String.format("%.2f", xp) + "§8/§c" + String.format("%.2f", nextLevelXp),
                     "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%");
-            List.put(head, level);
+
+            leaderboardCache.put(uuid, head);
         }
+    }
+
+    public void openLeaderBoardPage(Player player, int page, int totalPages) {
+        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
+        addBorders(menu, 6);
+
+        List<Map.Entry<UUID, Integer>> sortedLeaderboard = getSortedLockListLeader();
+        int startIndex = (page - 1) * 36;
+        int endIndex = Math.min(startIndex + 36, sortedLeaderboard.size());
+        int index = 10;
+
         for (int i = startIndex; i < endIndex; i++) {
-            menu.setItem(index, head);
-            if (index == 16 || index == 25 || index == 34)
-            {
-                index= index+2;
-            } else if (index == 43) {
-                index = 36;
+            UUID uuid = sortedLeaderboard.get(i).getKey();
+            ItemStack head = leaderboardCache.get(uuid);
+
+            if (head != null) {
+                menu.setItem(index, head);
+                if (index == 16 || index == 25 || index == 34) {
+                    index += 2;
+                } else if (index == 43) {
+                    index = 36;
+                }
+                index++;
             }
-            index++;
         }
         addNavigationButtons(menu, page, totalPages);
         player.openInventory(menu);
     }
+
+    public void checkForLeaderboardUpdates() {
+        OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
+        for (OfflinePlayer target : offlinePlayers) {
+            UUID uuid = target.getUniqueId();
+            PlayerLevel playerLevel = playerDataManager.loadPlayerData(uuid, null);
+            ItemStack cachedHead = leaderboardCache.get(uuid);
+            if (cachedHead == null || playerLevelHasChanged(playerLevel, cachedHead)) {
+                generateLeaderboardCache();
+            }
+        }
+    }
+
+    private boolean playerLevelHasChanged(PlayerLevel playerLevel, ItemStack cachedHead) {
+        ItemMeta meta = cachedHead.getItemMeta();
+        if (meta == null || !meta.hasLore()) {
+            return true;
+        }
+
+        List<String> lore = meta.getLore();
+        if (lore == null || lore.size() < 3) {
+            return true;
+        }
+
+        String levelLine = lore.get(0);
+        String xpLine = lore.get(1);
+        String progressLine = lore.get(2);
+
+        int cachedLevel = Integer.parseInt(levelLine.replaceAll("[^0-9]", ""));
+
+        String[] xpParts = xpLine.split("§8/§c");
+        double cachedXp = Double.parseDouble(xpParts[0].replaceAll("[^0-9.]", ""));
+        double cachedNextXp = Double.parseDouble(xpParts[1].replaceAll("[^0-9.]", ""));
+
+        if (cachedLevel != playerLevel.getLevel()) {
+            return true;
+        }
+
+        if (cachedXp != playerLevel.getExperience() || cachedNextXp != playerLevel.getExpNextLevel()) {
+            return true;
+        }
+        return false;
+    }
+    //===================================================== UNLOCK PAGE =============================================================
+
+
 
     public void openUnlockPage(Player player, int page, int totalPages, List<Map.Entry<Material, Integer>> lockList, int playerLevel) {
         Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lUnlock §f- §4§l" + player.getName() + " §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
@@ -142,13 +198,21 @@ public class LevelGUI {
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toList());
     }
-    public List<Map.Entry<ItemStack, Integer>> getSortedLockListleader() {
-        return LisentrySet()
+    public List<Map.Entry<UUID, Integer>> getSortedLockListLeader() {
+        return leaderboardCache.entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue())
+                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), getLevelFromHead(entry.getValue())))
+                .sorted(Map.Entry.<UUID, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
     }
-
+    private int getLevelFromHead(ItemStack head) {
+        List<String> lore = head.getItemMeta().getLore();
+        if (lore != null && !lore.isEmpty()) {
+            String levelLine = lore.get(0);
+            return Integer.parseInt(levelLine.replaceAll("[^0-9]", ""));
+        }
+        return 0;
+    }
     public ItemStack getPlayerHeadInfo(String playerName) {
         ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
@@ -235,7 +299,10 @@ public class LevelGUI {
         if (meta != null) {
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(headName));
             meta.setDisplayName(name);
-            meta.setLore(Arrays.asList(lore1, lore2,lore2));
+            lore1 = lore1 != null ? lore1 : "";
+            lore2 = lore2 != null ? lore2 : "";
+            lore3 = lore3 != null ? lore3 : "";
+            meta.setLore(Arrays.asList(lore1, lore2, lore3));
             head.setItemMeta(meta);
         }
         return head;
