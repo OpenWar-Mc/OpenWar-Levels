@@ -15,6 +15,7 @@ import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 import java.util.UUID;
@@ -52,11 +53,18 @@ public final class Main extends JavaPlugin {
 
         this.getCommand("leveladmin").setExecutor(new LevelAdminCommand(pl, this));
         this.getCommand("level").setExecutor(new LevelCommand(pl, gui));
-
+        gui.generateLeaderboardCache();
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
         System.out.println("====================================");
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                gui.checkForLeaderboardUpdates();
+            }
+        }.runTaskTimer(this, 0, 3600);
+
 
     }
 
