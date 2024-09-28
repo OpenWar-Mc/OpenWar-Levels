@@ -67,7 +67,7 @@ public class LevelLock implements Listener {
 
     public static void loadLock() {
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 10);
-        //LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);
+        LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_generic"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_strong"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_flare"), 15);

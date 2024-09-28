@@ -160,8 +160,8 @@ public class LevelGUI {
         Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lUnlock §f- §4§l" + player.getName() + " §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
         addBorders(menu, 6);
         List<Map.Entry<Material, Integer>> sortedLockList = getSortedLockList();
-        int startIndex = (page - 1) * 36;
-        int endIndex = Math.min(startIndex + 36, lockList.size());
+        int startIndex = (page - 1) * 28;
+        int endIndex = Math.min(startIndex + 28, sortedLockList.size());
 
         int index = 10;
         for (int i = startIndex; i < endIndex; i++) {
@@ -170,6 +170,8 @@ public class LevelGUI {
             int lockLevel = entry.getValue();
             if (material == null) {
                 System.err.println("Material at index " + i + " is null.");
+                ItemStack itemFinal = getIconItem(Material.BARRIER, "§cConcrete Cracker", "§cRequired level: §438", "§7Item Data Null","");
+                menu.setItem(index, itemFinal);
                 continue;
             }
 
@@ -183,8 +185,6 @@ public class LevelGUI {
             if (index == 16 || index == 25 || index == 34)
             {
                 index= index+2;
-            } else if (index == 43) {
-                index = 36;
             }
             index++;
         }
@@ -269,11 +269,11 @@ public class LevelGUI {
     public int getTotalPages(String gui) {
         int i = 0;
         if (gui.equals("unlock")) {
-            i = (int) Math.ceil((double) getLockList().size() / 36);
+            i = (int) Math.ceil((double) getLockList().size() / 28);
         }
         if (gui.equals("leader")) {
             OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-            i = (int) Math.ceil((double) offlinePlayers.length / 36);
+            i = (int) Math.ceil((double) offlinePlayers.length / 28);
         }
         return i;
     }
