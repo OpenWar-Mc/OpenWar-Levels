@@ -76,7 +76,7 @@ public class LevelGUI {
             ItemStack head = getHeadItem(target.getName(),
                     "§c" + target.getName(),
                     "§7Level §8: §c" + level,
-                    "§7Experience §8: §c" + String.format("%.1f", xp) + "§8/§c" + String.format("%.1f", nextLevelXp),
+                    "§7Experience §8: §c" + String.format("%.2f", xp) + "§8/§c" + String.format("%.2f", nextLevelXp),
                     "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%");
 
             leaderboardCache.put(uuid, head);
