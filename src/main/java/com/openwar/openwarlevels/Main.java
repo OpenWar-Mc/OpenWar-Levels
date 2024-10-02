@@ -1,10 +1,7 @@
 package com.openwar.openwarlevels;
 
-import com.openwar.openwarfaction.commands.AdminCommand;
-import com.openwar.openwarfaction.factions.FactionGUI;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.GUI.LevelGUI;
-import com.openwar.openwarlevels.commands.LevelAdminCommand;
 import com.openwar.openwarlevels.commands.LevelCommand;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
@@ -50,8 +47,6 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new LevelLock(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new MenuHandler(pl, gui), this);
-
-        this.getCommand("leveladmin").setExecutor(new LevelAdminCommand(pl, this));
         this.getCommand("level").setExecutor(new LevelCommand(pl, gui));
         gui.generateLeaderboardCache();
         System.out.println(" ");
