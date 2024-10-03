@@ -29,6 +29,7 @@ public class PlayerHandler implements Listener {
     private String logo = "§8» §6Levels 8« §7";
 
     private double experience;
+    private double expboost;
     private int expfac;
     private long lastExpTime;
     private final long EXP_TIMEOUT = 4000;
@@ -61,6 +62,7 @@ public class PlayerHandler implements Listener {
                     Faction fac = fm.getFactionByPlayer(player.getUniqueId());
                     if (fac != null) {
                         checkFactionXp(player,fac);
+                        addExpBoost(fac, exp);
                     }
                 }
             }
@@ -86,6 +88,7 @@ public class PlayerHandler implements Listener {
             Faction fac = fm.getFactionByPlayer(player.getUniqueId());
             if (fac != null) {
                 checkFactionXp(player,fac);
+                addExpBoost(fac, exp);
             }
         }
     }
@@ -173,7 +176,11 @@ public class PlayerHandler implements Listener {
     public void showExp(Player player, double exp) {
         experience += exp;
         String formattedExp = String.format("%.1f", experience);
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!!"));
+        if (expboost > 0) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!! §7(§b"+expboost+"§7)"));
+        } else {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!!"));
+        }
     }
     private void checkFactionXp(Player player, Faction fac) {
         int facXP = fac.getExp();
@@ -183,6 +190,23 @@ public class PlayerHandler implements Listener {
             expfac = 0;
             int xp = calcFac(player.getLevel());
             fac.addExp(xp);
+        }
+    }
+
+    private void addExpBoost(Faction faction, double exp) {
+        int factionLevel = faction.getLevel();
+        if (factionLevel < 6) {
+            expboost = exp*0.15;
+        } else if (factionLevel < 10) {
+            expboost = exp*0.35;
+        } else if (factionLevel < 14) {
+            expboost = exp*0.55;
+        } else if (factionLevel < 18) {
+            expboost = exp*0.75;
+        } else if (factionLevel < 19) {
+            expboost = exp*0.90;
+        } else if (factionLevel == 20) {
+            expboost = exp;
         }
     }
     private int calcFac(int playerLVL) {
