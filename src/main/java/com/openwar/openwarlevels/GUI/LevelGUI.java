@@ -69,16 +69,18 @@ public class LevelGUI {
             double xp = playerLevel.getExperience();
             double currentLevelXp = playerLevel.getExpCurrentLevel();
             double nextLevelXp = playerLevel.getExpNextLevel();
-            double percent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-            int progress = (int) ((percent / 100) * 10);
 
+            double percent = (xp / nextLevelXp) * 100;
+            int progress = (int) ((xp / nextLevelXp) * 10);
+            int total = 10;
 
             ItemStack head = getHeadItem(target.getName(),
                     "§c" + target.getName(),
                     "§7Level §8: §c" + level,
                     "§7Experience §8: §c" + String.format("%.2f", xp) + "§8/§c" + String.format("%.2f", nextLevelXp),
-                    "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%");
 
+                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
+            );
             leaderboardCache.put(uuid, head);
         }
     }
@@ -224,16 +226,16 @@ public class LevelGUI {
             double xp = playerLevel.getExperience();
             double currentLevelXp = playerLevel.getExpCurrentLevel();
             double nextLevelXp = playerLevel.getExpNextLevel();
-            double percent = ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
 
-            int progress = (int) ((percent / 100) * 10);
-
+            double percent = (xp / nextLevelXp) * 100;
+            int progress = (int) ((xp / nextLevelXp) * 10);
+            int total = 10;
             meta.setOwningPlayer(player);
             meta.setDisplayName("§4§l" + playerName);
             meta.setLore(Arrays.asList(
                     "§7Level §8: §c" + level,
                     "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
-                    "§7Progression §8: " + getProgressBar(progress, 10) + " §c" + String.format("%.2f", percent) + "%"
+                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
             ));
             playerHead.setItemMeta(meta);
         }
