@@ -53,14 +53,13 @@ public class MenuHandler implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         InventoryView view = event.getView();
-        Inventory topInventory = view.getTopInventory();
         UUID playerUUID = player.getUniqueId();
 
         if (view.getTitle().contains("§8§k§l!!§r §c§lLevel §f- §c§lGUI §8§k§l!!")) {
             event.setCancelled(true);
             int slot = event.getSlot();
             if (slot == 13) {
-                gui.openLeaderBoardPage(player,1, gui.getTotalPages("unlock"));
+                gui.openLeaderBoardPage(player);
             }
             if (slot == 15) {
                 gui.openUnlockPage(player, 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(player.getUniqueId()));
@@ -70,19 +69,6 @@ public class MenuHandler implements Listener {
         if (view.getTitle().startsWith("§8§k§l!!§r §4§lUnlock §f- §4§l")) {
             event.setCancelled(true);
             int slot = event.getSlot();
-            if (slot == 48) {
-                int currentPage = getCurrentPage(playerUUID, "unlock");
-                if (currentPage > 1) {
-                    setCurrentPage(playerUUID, currentPage - 1,"unlock");
-                    gui.openUnlockPage(player, currentPage - 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
-                }
-            } else if (slot == 50) {
-                int currentPage = getCurrentPage(playerUUID, "unlock");
-                if (currentPage < gui.getTotalPages("unlock")) {
-                    setCurrentPage(playerUUID, currentPage + 1,"unlock");
-                    gui.openUnlockPage(player, currentPage + 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
-                }
-            }
         }
         if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r")) {
             event.setCancelled(true);

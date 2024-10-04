@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,9 +22,10 @@ import java.util.stream.Collectors;
 public class LevelGUI {
 
     private PlayerDataManager playerDataManager;
-    private Map<UUID, ItemStack> leaderboardCache = new HashMap<>();
+    private JavaPlugin main;
 
-    public LevelGUI(PlayerDataManager playerDataManager) {
+    public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main) {
+        this.main = main;
         this.playerDataManager = playerDataManager;
     }
 
@@ -53,105 +55,92 @@ public class LevelGUI {
         UUID playerUUID = player.getUniqueId();
         Inventory menu = Bukkit.createInventory(null, 27, "§8§k§l!!§r §c§lLevel §f- §c§lGUI §8§k§l!!");
         addBorders(menu, 3);
-        menu.setItem(11, getPlayerHeadInfo(player.getName()));
-        menu.setItem(13, getLeaderboard());
-        menu.setItem(15, getUnlock());
+
+
+        Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+            ItemStack leaderHead = getPlayerHeadInfo(player.getName());
+            Bukkit.getScheduler().runTask(main, () -> {
+                menu.setItem(11, leaderHead);
+                menu.setItem(13, getLeaderboard());
+                menu.setItem(15, getUnlock());
+                player.updateInventory();
+            });
+        });
+        menu.setItem(11, getIconItem(Material.SKULL_ITEM, "§4§l "+player.getName(), "§7Loading data... ", "", ""));
+        menu.setItem(13, getIconItem(Material.SKULL_ITEM, "§4§lLeaderBoard §f- §cServers", "§7Every players levels !", "", ""));
+        menu.setItem(15, getIconItem(Material.SKULL_ITEM, "§4§lUnlocked §f- §cItems", "§7Every items you have unlocked !", "", ""));
 
         player.openInventory(menu);
     }
     //=================================================== OPEN LEADERBOARDS TO PLAYER ==========================
-    public void generateLeaderboardCache() {
-        OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-        for (OfflinePlayer target : offlinePlayers) {
-            UUID uuid = target.getUniqueId();
-            PlayerLevel playerLevel = playerDataManager.loadPlayerData(uuid, null);
-            int level = playerLevel.getLevel();
-            double xp = playerLevel.getExperience();
-            double currentLevelXp = playerLevel.getExpCurrentLevel();
-            double nextLevelXp = playerLevel.getExpNextLevel();
+    //public void generateLeaderboardCache() {
+    //    System.out.println(" GENERATE LEADERBOARD ");
+    //    OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
+    //    for (OfflinePlayer target : offlinePlayers) {
+    //        UUID uuid = target.getUniqueId();
+    //        PlayerLevel playerLevel = playerDataManager.loadPlayerData(uuid, null);
+    //        int level = playerLevel.getLevel();
+    //        double xp = playerLevel.getExperience();
+    //        double nextLevelXp = playerLevel.getExpNextLevel();
+//
+    //        double percent = (xp / nextLevelXp) * 100;
+    //        int progress = (int) ((xp / nextLevelXp) * 10);
+    //        int total = 10;
+//
+    //        ItemStack head = getIconItem(Material.SKULL_ITEM,
+    //                "§c" + target.getName(),
+    //                "§7Level §8: §c" + level,
+    //                "§7Experience §8: §c" + String.format("%.2f", xp) + "§8/§c" + String.format("%.2f", nextLevelXp),
+    //                "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
+    //        );
+    //        System.out.println(" ADDING  "+uuid);
+    //    }
+    //}
 
-            double percent = (xp / nextLevelXp) * 100;
-            int progress = (int) ((xp / nextLevelXp) * 10);
-            int total = 10;
-
-            ItemStack head = getHeadItem(target.getName(),
-                    "§c" + target.getName(),
-                    "§7Level §8: §c" + level,
-                    "§7Experience §8: §c" + String.format("%.2f", xp) + "§8/§c" + String.format("%.2f", nextLevelXp),
-
-                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
-            );
-            leaderboardCache.put(uuid, head);
+    public List<UUID> generateLeaderboardsListSorted() {
+        OfflinePlayer[] players = Bukkit.getOfflinePlayers();
+        Map<UUID, Integer> playerLevels = new HashMap<>();
+        for (OfflinePlayer player : players) {
+            UUID playerUUID = player.getUniqueId();
+            int level = playerDataManager.loadPlayerData(playerUUID, null).getLevel();
+            playerLevels.put(playerUUID, level);
         }
+        List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerLevels.entrySet());
+        sortedEntries.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
+        List<UUID> sortedLeaderboards = new ArrayList<>();
+
+        for (Map.Entry<UUID, Integer> entry : sortedEntries) {
+            UUID playerUUID = entry.getKey();
+            sortedLeaderboards.add(playerUUID);
+        }
+        return sortedLeaderboards;
     }
-
-    public void openLeaderBoardPage(Player player, int page, int totalPages) {
-        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r §8(Page §f" + page + "§8/§f" + totalPages + "§8)");
+    public void openLeaderBoardPage(Player player) {
+        Inventory menu = Bukkit.createInventory(null, 54, "§8§k§l!!§r §4§lLeaderBoard §8§k§l!!");
         addBorders(menu, 6);
-
-        List<Map.Entry<UUID, Integer>> sortedLeaderboard = getSortedLockListLeader();
-        int startIndex = (page - 1) * 36;
-        int endIndex = Math.min(startIndex + 36, sortedLeaderboard.size());
         int index = 10;
-
-        for (int i = startIndex; i < endIndex; i++) {
-            UUID uuid = sortedLeaderboard.get(i).getKey();
-            ItemStack head = leaderboardCache.get(uuid);
-
-            if (head != null) {
-                menu.setItem(index, head);
-                if (index == 16 || index == 25 || index == 34) {
-                    index += 2;
-                } else if (index == 43) {
-                    index = 36;
-                }
-                index++;
+        List<UUID> sortedLeaderboard = generateLeaderboardsListSorted();
+        for (int i = 0; i < 37; i++) {
+            UUID uuid = sortedLeaderboard.get(i);
+            OfflinePlayer pl = Bukkit.getOfflinePlayer(uuid);
+            int finalIndex = index;
+            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+                ItemStack head = getPlayerHeadInfo(pl.getName());
+                Bukkit.getScheduler().runTask(main, () -> {
+                    menu.setItem(finalIndex, head);
+                    player.updateInventory();
+                });
+            });
+            ItemStack head = getIconItem(Material.SKULL_ITEM, "§4§l "+pl.getName(), "§7Loading data... ", "", "");
+            menu.setItem(index, head);
+            if (index == 16 || index == 25 || index == 34) {
+                index += 2;
+            } else if (index == 43) {
+                index = 36;
             }
+            index++;
         }
         player.openInventory(menu);
-    }
-
-    public void checkForLeaderboardUpdates() {
-        OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-        for (OfflinePlayer target : offlinePlayers) {
-            UUID uuid = target.getUniqueId();
-            PlayerLevel playerLevel = playerDataManager.loadPlayerData(uuid, null);
-            ItemStack cachedHead = leaderboardCache.get(uuid);
-            if (cachedHead == null || playerLevelHasChanged(playerLevel, cachedHead)) {
-                generateLeaderboardCache();
-            }
-        }
-    }
-
-    private boolean playerLevelHasChanged(PlayerLevel playerLevel, ItemStack cachedHead) {
-        ItemMeta meta = cachedHead.getItemMeta();
-        if (meta == null || !meta.hasLore()) {
-            return true;
-        }
-
-        List<String> lore = meta.getLore();
-        if (lore == null || lore.size() < 3) {
-            return true;
-        }
-
-        String levelLine = lore.get(0);
-        String xpLine = lore.get(1);
-        String progressLine = lore.get(2);
-
-        int cachedLevel = Integer.parseInt(levelLine.replaceAll("[^0-9]", ""));
-
-        String[] xpParts = xpLine.split("§8/§c");
-        double cachedXp = Double.parseDouble(xpParts[0].replaceAll("[^0-9.]", ""));
-        double cachedNextXp = Double.parseDouble(xpParts[1].replaceAll("[^0-9.]", ""));
-
-        if (cachedLevel != playerLevel.getLevel()) {
-            return true;
-        }
-
-        if (cachedXp != playerLevel.getExperience() || cachedNextXp != playerLevel.getExpNextLevel()) {
-            return true;
-        }
-        return false;
     }
     //===================================================== UNLOCK PAGE =============================================================
 
@@ -199,21 +188,7 @@ public class LevelGUI {
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toList());
     }
-    public List<Map.Entry<UUID, Integer>> getSortedLockListLeader() {
-        return leaderboardCache.entrySet()
-                .stream()
-                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), getLevelFromHead(entry.getValue())))
-                .sorted(Map.Entry.<UUID, Integer>comparingByValue().reversed())
-                .collect(Collectors.toList());
-    }
-    private int getLevelFromHead(ItemStack head) {
-        List<String> lore = head.getItemMeta().getLore();
-        if (lore != null && !lore.isEmpty()) {
-            String levelLine = lore.get(0);
-            return Integer.parseInt(levelLine.replaceAll("[^0-9]", ""));
-        }
-        return 0;
-    }
+
     public ItemStack getPlayerHeadInfo(String playerName) {
         ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();

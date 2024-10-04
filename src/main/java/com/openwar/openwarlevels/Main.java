@@ -42,13 +42,13 @@ public final class Main extends JavaPlugin {
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
         if (!setupDepend()) {return;}
-        gui = new LevelGUI(pl);
+        gui = new LevelGUI(pl, this);
         getServer().getPluginManager().registerEvents(new PlayerListener(pl, fm), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new LevelLock(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new MenuHandler(pl, gui), this);
         this.getCommand("level").setExecutor(new LevelCommand(pl, gui));
-        gui.generateLeaderboardCache();
+        //gui.generateLeaderboardCache();
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
@@ -56,7 +56,8 @@ public final class Main extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                gui.checkForLeaderboardUpdates();
+                //gui.checkForLeaderboardUpdates();
+                System.out.println("LeaderBoards Refresh");
             }
         }.runTaskTimer(this, 0, 3600);
 
