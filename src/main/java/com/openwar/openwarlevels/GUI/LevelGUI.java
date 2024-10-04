@@ -108,7 +108,6 @@ public class LevelGUI {
                 index++;
             }
         }
-        addNavigationButtons(menu, page, totalPages);
         player.openInventory(menu);
     }
 
