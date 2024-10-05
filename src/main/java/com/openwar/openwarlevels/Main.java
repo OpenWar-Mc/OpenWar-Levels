@@ -48,18 +48,10 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new LevelLock(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new MenuHandler(pl, gui), this);
         this.getCommand("level").setExecutor(new LevelCommand(pl, gui));
-        //gui.generateLeaderboardCache();
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
         System.out.println("====================================");
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                //gui.checkForLeaderboardUpdates();
-                System.out.println("LeaderBoards Refresh");
-            }
-        }.runTaskTimer(this, 0, 3600);
 
 
     }
