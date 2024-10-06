@@ -165,7 +165,7 @@ public class PlayerHandler implements Listener {
         data.savePlayerData(player.getUniqueId(), playerLevel);
         Faction fac = fm.getFactionByPlayer(player.getUniqueId());
         if (fac != null) {
-            checkFactionXp(player,fac);
+            checkFactionXp(player,fac, exp);
             double expB= calcExpBoost(player, fac, exp);
             showExp(player, exp, expB);
         }
@@ -185,12 +185,13 @@ public class PlayerHandler implements Listener {
         }
     }
 
-    private void checkFactionXp(Player player, Faction fac) {
+    private void checkFactionXp(Player player, Faction fac, double exp) {
         int facLVL = fac.getLevel();
         float requiredXP = facLVL*78.6F;
         if (expfac >= requiredXP) {
             expfac = 0;
-            int xp = calcFac(player.getLevel());
+            int xp = calcFac(player.getLevel(), exp);
+            System.out.println("XP FACTION MAKED "+xp);
             fac.addExp(xp);
         }
     }
@@ -216,8 +217,9 @@ public class PlayerHandler implements Listener {
         return exp;
     }
 
-    private int calcFac(int playerLVL) {
-        return playerLVL*10+playerLVL/2+8;
+    private int calcFac(int playerLVL, double exp) {
+        int xp = (int)exp;
+        return xp/2+playerLVL*2+16;
     }
 
     @EventHandler
