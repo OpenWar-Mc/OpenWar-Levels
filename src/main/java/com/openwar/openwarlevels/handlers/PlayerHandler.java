@@ -187,7 +187,7 @@ public class PlayerHandler implements Listener {
 
     private void checkFactionXp(Player player, Faction fac, double exp) {
         int facLVL = fac.getLevel();
-        float requiredXP = facLVL*78.6F;
+        float requiredXP = facLVL*278.6F;
         if (expfac >= requiredXP) {
             expfac = 0;
             int xp = calcFac(player.getLevel(), exp);
