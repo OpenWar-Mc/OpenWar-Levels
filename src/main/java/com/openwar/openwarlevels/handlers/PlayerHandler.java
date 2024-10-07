@@ -167,9 +167,6 @@ public class PlayerHandler implements Listener {
         if (fac != null) {
             checkFactionXp(player,fac, exp);
             double expB= calcExpBoost(player, fac, exp);
-            if (expB == 0) {
-                return;
-            }
             showExp(player, exp, expB);
         }
         showExp(player, exp, 0);
