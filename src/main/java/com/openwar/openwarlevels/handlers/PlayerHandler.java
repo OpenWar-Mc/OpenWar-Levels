@@ -191,7 +191,6 @@ public class PlayerHandler implements Listener {
         if (expfac >= requiredXP) {
             expfac = 0;
             int xp = calcFac(player.getLevel(), exp);
-            System.out.println("XP FACTION MAKED "+xp);
             fac.addExp(xp);
         }
     }
