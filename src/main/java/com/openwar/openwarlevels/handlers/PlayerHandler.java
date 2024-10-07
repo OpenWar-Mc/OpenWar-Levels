@@ -167,6 +167,9 @@ public class PlayerHandler implements Listener {
         if (fac != null) {
             checkFactionXp(player,fac, exp);
             double expB= calcExpBoost(player, fac, exp);
+            if (expB == 0) {
+                return;
+            }
             showExp(player, exp, expB);
         }
         showExp(player, exp, 0);
@@ -198,6 +201,9 @@ public class PlayerHandler implements Listener {
 
     private double calcExpBoost(Player player, Faction faction, double exp) {
         int factionLevel = faction.getLevel();
+        if  (factionLevel < 3) {
+            return 0;
+        }
         if (factionLevel < 6) {
             exp = exp*0.15;
         } else if (factionLevel < 10) {
