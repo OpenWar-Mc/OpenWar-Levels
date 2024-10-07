@@ -225,7 +225,7 @@ public class PlayerHandler implements Listener {
 
     private int calcFac(int playerLVL, double exp) {
         int xp = (int)exp;
-        return xp/2+playerLVL*2+16;
+        return 2*playerLVL+xp/2;
     }
 
     @EventHandler
