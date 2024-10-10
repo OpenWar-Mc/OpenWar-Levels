@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.handlers;
 
+import com.google.common.eventbus.DeadEvent;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.Main;
@@ -9,11 +10,15 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -37,6 +42,8 @@ public class PlayerHandler implements Listener {
     private final long EXP_TIMEOUT = 4000;
     private Map<Material, Double> BLOCK = new HashMap<>();
     private Map<Material, Double> CROPS = new HashMap<>();
+    private Map<EntityType, Double> MOBS = new HashMap<>();
+    private final Map<Entity, Player> lastHit = new HashMap<>();
 
     public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
@@ -61,6 +68,31 @@ public class PlayerHandler implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageByEntityEvent event) {
+        if (event.getEntity() instanceof Entity && event.getEntity().getType() != EntityType.PLAYER) {
+            if (event.getDamager() instanceof Player) {
+                Player player = (Player) event.getDamager();
+                Entity mob = (Entity) event.getEntity();
+                lastHit.put(mob, player);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onMobDeath(EntityDeathEvent event) {
+        if (lastHit.containsKey(event.getEntity())) {
+            Player killer = lastHit.get(event.getEntity());
+            lastHit.remove(event.getEntity());
+            if (BLOCK.containsKey(event.getEntity())) {
+                double exp = MOBS.get(event.getEntity());
+                expManager(killer, exp);
+            }
+        }
+    }
+
+
 
     @EventHandler
     public void onMineBlock(BlockBreakEvent event) {
@@ -139,10 +171,38 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.CLAY, 34.6);
         BLOCK.put(Material.MELON_BLOCK, 89.6);
         BLOCK.put(Material.PUMPKIN, 89.6);
-
+        BLOCK.put(Material.SUGAR_CANE, 30.5);
 
         CROPS.put(Material.CROPS, 72.4);
         CROPS.put(Material.NETHER_WARTS, 81.9);
+
+        MOBS.put(EntityType.CHICKEN, 34.5);
+        MOBS.put(EntityType.COW, 53.2);
+        MOBS.put(EntityType.DONKEY, 23.9);
+        MOBS.put(EntityType.MULE, 26.9);
+        MOBS.put(EntityType.HORSE, 27.1);
+        MOBS.put(EntityType.SHEEP, 45.3);
+        MOBS.put(EntityType.PIG, 43.2);
+        MOBS.put(EntityType.RABBIT, 20.3);
+        MOBS.put(EntityType.WOLF, 1.2);
+        MOBS.put(EntityType.SQUID, 29.6);
+
+        MOBS.put(EntityType.ZOMBIE, 44.5);
+        MOBS.put(EntityType.SKELETON, 53.2);
+        MOBS.put(EntityType.CREEPER, 33.9);
+        MOBS.put(EntityType.SPIDER, 46.9);
+        MOBS.put(EntityType.ENDERMAN, 67.1);
+        MOBS.put(EntityType.WITCH, 55.3);
+        MOBS.put(EntityType.GHAST, 43.2);
+        MOBS.put(EntityType.SILVERFISH, 10.3);
+        MOBS.put(EntityType.BLAZE, 47.2);
+        MOBS.put(EntityType.ENDERMITE, 19.6);
+        MOBS.put(EntityType.HUSK, 23.9);
+        MOBS.put(EntityType.VINDICATOR, 27.1);
+        MOBS.put(EntityType.EVOKER, 45.3);
+        MOBS.put(EntityType.WITHER_SKELETON, 43.2);
+        MOBS.put(EntityType.STRAY, 20.3);
+
     }
 
     private void startExpTimer() {
