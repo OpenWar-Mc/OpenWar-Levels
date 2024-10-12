@@ -69,23 +69,25 @@ public class MenuHandler implements Listener {
         if (view.getTitle().startsWith("§8§k§l!!§r §4§lUnlock §f- §4§l")) {
             event.setCancelled(true);
             int slot = event.getSlot();
-        }
-        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r")) {
-            event.setCancelled(true);
-            int slot = event.getSlot();
             if (slot == 48) {
-                int currentPage = getCurrentPage(playerUUID, "leader");
+                int currentPage = getCurrentPage(playerUUID, "unlock");
+                System.out.println("Current page: "+currentPage);
                 if (currentPage > 1) {
-                    setCurrentPage(playerUUID, currentPage - 1,"leader");
-                    gui.openUnlockPage(player, currentPage - 1, gui.getTotalPages("leader"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                    setCurrentPage(playerUUID, currentPage - 1,"unlock");
+                    gui.openUnlockPage(player, currentPage - 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
                 }
             } else if (slot == 50) {
-                int currentPage = getCurrentPage(playerUUID, "leader");
-                if (currentPage < gui.getTotalPages("leader")) {
-                    setCurrentPage(playerUUID, currentPage + 1,"leader");
-                    gui.openUnlockPage(player, currentPage + 1, gui.getTotalPages("leader"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                int currentPage = getCurrentPage(playerUUID, "unlock");
+                System.out.println("Current page: "+currentPage);
+                if (currentPage < gui.getTotalPages("unlock")) {
+                    setCurrentPage(playerUUID, currentPage + 1,"unlock");
+                    gui.openUnlockPage(player, currentPage + 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
                 }
             }
+        }
+
+        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r")) {
+            event.setCancelled(true);
         }
     }
 }
