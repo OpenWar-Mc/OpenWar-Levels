@@ -27,8 +27,6 @@ public class MenuHandler implements Listener {
     }
 
 
-
-
     public int getCurrentPage(UUID playerUUID, String gui) {
         if (gui.equals("unlock")) {
             return playerPages.getOrDefault(playerUUID, 1);
@@ -82,6 +80,8 @@ public class MenuHandler implements Listener {
                 if (currentPage < gui.getTotalPages("unlock")) {
                     setCurrentPage(playerUUID, currentPage + 1,"unlock");
                     gui.openUnlockPage(player, currentPage + 1, gui.getTotalPages("unlock"), gui.getLockList(), gui.getPlayerLevel(playerUUID));
+                } else {
+                    setCurrentPage(playerUUID, currentPage = 2, "unlock");
                 }
             }
         }
