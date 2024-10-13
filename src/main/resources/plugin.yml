@@ -2,7 +2,7 @@ name: OpenWar-Levels
 version: '${project.version}'
 main: com.openwar.openwarlevels.Main
 depend:
-  -OpenWar-Core
+  - OpenWar-Core
 commands:
   level:
     description: Level commands

@@ -1,6 +1,5 @@
 package com.openwar.openwarlevels.GUI;
 
-import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.level.PlayerDataManager;
@@ -8,10 +7,12 @@ import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Skull;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -20,14 +21,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class LevelGUI {
+public class LevelGUI{
 
     private PlayerDataManager playerDataManager;
     private JavaPlugin main;
+    private MenuHandler mh;
 
-    public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main) {
+    public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh) {
         this.main = main;
         this.playerDataManager = playerDataManager;
+        this.mh = mh;
     }
 
     private void addBorders(Inventory inv, int rows) {
@@ -180,6 +183,7 @@ public class LevelGUI {
             index++;
         }
         addNavigationButtons(menu, page, totalPages);
+        mh.setCurrentPage(player.getUniqueId(), page, "unlock");
         player.openInventory(menu);
     }
     public List<Map.Entry<Material, Integer>> getSortedLockList() {
@@ -198,7 +202,6 @@ public class LevelGUI {
 
             int level = playerLevel.getLevel();
             double xp = playerLevel.getExperience();
-            double currentLevelXp = playerLevel.getExpCurrentLevel();
             double nextLevelXp = playerLevel.getExpNextLevel();
 
             double percent = (xp / nextLevelXp) * 100;
@@ -321,5 +324,4 @@ public class LevelGUI {
 
         return skull;
     }
-
 }

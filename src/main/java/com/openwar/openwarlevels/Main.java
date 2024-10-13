@@ -12,7 +12,6 @@ import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 
 import java.util.UUID;
@@ -20,9 +19,6 @@ import java.util.UUID;
 public final class Main extends JavaPlugin {
     private PlayerDataManager pl;
     private FactionManager fm;
-    private PlayerHandler ph;
-    private LevelGUI gui;
-    private LevelLock lock;
 
     private boolean setupDepend() {
         RegisteredServiceProvider<PlayerDataManager> levelProvider = getServer().getServicesManager().getRegistration(PlayerDataManager.class);
@@ -42,12 +38,15 @@ public final class Main extends JavaPlugin {
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
         if (!setupDepend()) {return;}
-        gui = new LevelGUI(pl, this);
+        MenuHandler menuHandler = new MenuHandler(this, null);
+        LevelGUI levelGUI = new LevelGUI(pl, this, menuHandler);
+        menuHandler.setLevelGUI(levelGUI);
+        getServer().getPluginManager().registerEvents(menuHandler, this);
+        this.getCommand("level").setExecutor(new LevelCommand(pl, levelGUI));
+
         getServer().getPluginManager().registerEvents(new PlayerListener(pl, fm), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, pl, fm), this);
         getServer().getPluginManager().registerEvents(new LevelLock(this, pl, fm), this);
-        getServer().getPluginManager().registerEvents(new MenuHandler(pl, gui), this);
-        this.getCommand("level").setExecutor(new LevelCommand(pl, gui));
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
