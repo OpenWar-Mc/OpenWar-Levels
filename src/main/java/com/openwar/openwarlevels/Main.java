@@ -3,6 +3,7 @@ package com.openwar.openwarlevels;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.GUI.LevelGUI;
 import com.openwar.openwarlevels.commands.LevelCommand;
+import com.openwar.openwarlevels.commands.UnlockCommand;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.handlers.PlayerHandler;
@@ -43,6 +44,7 @@ public final class Main extends JavaPlugin {
         menuHandler.setLevelGUI(levelGUI);
         getServer().getPluginManager().registerEvents(menuHandler, this);
         this.getCommand("level").setExecutor(new LevelCommand(pl, levelGUI));
+        this.getCommand("unlock").setExecutor(new UnlockCommand(pl, levelGUI));
 
         getServer().getPluginManager().registerEvents(new PlayerListener(pl, fm), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, pl, fm), this);

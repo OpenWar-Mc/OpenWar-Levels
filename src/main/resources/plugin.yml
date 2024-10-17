@@ -6,6 +6,11 @@ depend:
 commands:
   level:
     description: Level commands
-    usage: /lvl | level
+    usage: /lvl | /level
     aliases:
       - lvl
+  unlock:
+    description: unlock command
+    usage: /unlock | /ul
+    aliases:
+      - ul
