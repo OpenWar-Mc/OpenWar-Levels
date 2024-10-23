@@ -77,9 +77,7 @@ public class PlayerHandler implements Listener {
             if (mob.getType() != EntityType.PLAYER) {
                 if (event.getDamager() instanceof Player) {
                     Player player = (Player) event.getDamager();
-                    System.out.println("Mob " + mob.getType() + " was damaged by " + player.getName());
                     lastHit.put(mob, player);
-                    System.out.println("Recorded " + player.getName() + " as the last hitter of " + mob.getType());
                 }
             }
         }
@@ -94,18 +92,11 @@ public class PlayerHandler implements Listener {
             if (lastHit.containsKey(deadMob)) {
                 Player killer = lastHit.get(deadMob);
                 lastHit.remove(deadMob);
-                System.out.println("Mob " + deadMob.getType() + " died. Killer: " + killer.getName());
-
                 String mobName = deadMob.getType().name();
                 if (MOBS.containsKey(mobName)) {
                     double exp = MOBS.get(mobName);
-                    System.out.println("Awarding " + exp + " experience to " + killer.getName());
                     expManager(killer, exp);
-                } else {
-                    System.out.println("No experience found for " + deadMob.getType());
                 }
-            } else {
-                System.out.println("No record of last hitter for " + deadMob.getType());
             }
         }
     }
@@ -188,21 +179,21 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.CLAY, 34.6);
         BLOCK.put(Material.MELON_BLOCK, 45.6);
         BLOCK.put(Material.PUMPKIN, 45.6);
-        BLOCK.put(Material.SUGAR_CANE, 30.5);
+        BLOCK.put(Material.SUGAR_CANE_BLOCK, 30.5);
 
-        CROPS.put(Material.CROPS, 72.4);
-        CROPS.put(Material.NETHER_WARTS, 81.9);
+        CROPS.put(Material.CROPS, 42.4);
+        CROPS.put(Material.NETHER_WARTS, 30.9);
 
         MOBS.put("CHICKEN", 34.5);
-        MOBS.put("COW", 53.2);
+        MOBS.put("COW", 23.2);
         MOBS.put("DONKEY", 23.9);
         MOBS.put("MULE", 26.9);
         MOBS.put("HORSE", 27.1);
-        MOBS.put("SHEEP", 45.3);
-        MOBS.put("PIG", 43.2);
-        MOBS.put("RABBIT", 20.3);
+        MOBS.put("SHEEP", 25.3);
+        MOBS.put("PIG", 23.2);
+        MOBS.put("RABBIT", 10.3);
         MOBS.put("WOLF", 1.2);
-        MOBS.put("SQUID", 29.6);
+        MOBS.put("SQUID", 19.6);
 
         MOBS.put("ZOMBIE" ,10.5);
         MOBS.put("SKELETON" ,13.2);
