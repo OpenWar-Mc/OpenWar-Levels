@@ -43,7 +43,7 @@ public class PlayerHandler implements Listener {
     private final long EXP_TIMEOUT = 4000;
     private Map<Material, Double> BLOCK = new HashMap<>();
     private Map<Material, Double> CROPS = new HashMap<>();
-    private Map<EntityType, Double> MOBS = new HashMap<>();
+    private Map<String, Double> MOBS = new HashMap<>();
     private final Map<LivingEntity, Player> lastHit = new HashMap<>();
 
     public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
@@ -85,6 +85,7 @@ public class PlayerHandler implements Listener {
         }
     }
 
+
     @EventHandler
     public void onMobDeath(EntityDeathEvent event) {
         Entity entity = event.getEntity();
@@ -95,8 +96,9 @@ public class PlayerHandler implements Listener {
                 lastHit.remove(deadMob);
                 System.out.println("Mob " + deadMob.getType() + " died. Killer: " + killer.getName());
 
-                if (MOBS.containsKey(deadMob)) {
-                    double exp = MOBS.get(deadMob);
+                String mobName = deadMob.getType().name();
+                if (MOBS.containsKey(mobName)) {
+                    double exp = MOBS.get(mobName);
                     System.out.println("Awarding " + exp + " experience to " + killer.getName());
                     expManager(killer, exp);
                 } else {
@@ -121,7 +123,6 @@ public class PlayerHandler implements Listener {
             expManager(player, exp);
         }
     }
-
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
@@ -181,41 +182,43 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.matchMaterial("hbm:ore_meteor_starmetal"), 123.2);
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_schrabidium"), 266.6);
         BLOCK.put(Material.matchMaterial("hbm:ore_schrabidium"), 231.8);
-        BLOCK.put(Material.LOG, 48.6);
+        BLOCK.put(Material.LOG, 10.4);
+        BLOCK.put(Material.LOG_2, 10.4);
+
         BLOCK.put(Material.CLAY, 34.6);
-        BLOCK.put(Material.MELON_BLOCK, 89.6);
-        BLOCK.put(Material.PUMPKIN, 89.6);
+        BLOCK.put(Material.MELON_BLOCK, 45.6);
+        BLOCK.put(Material.PUMPKIN, 45.6);
         BLOCK.put(Material.SUGAR_CANE, 30.5);
 
         CROPS.put(Material.CROPS, 72.4);
         CROPS.put(Material.NETHER_WARTS, 81.9);
 
-        MOBS.put(EntityType.CHICKEN, 34.5);
-        MOBS.put(EntityType.COW, 53.2);
-        MOBS.put(EntityType.DONKEY, 23.9);
-        MOBS.put(EntityType.MULE, 26.9);
-        MOBS.put(EntityType.HORSE, 27.1);
-        MOBS.put(EntityType.SHEEP, 45.3);
-        MOBS.put(EntityType.PIG, 43.2);
-        MOBS.put(EntityType.RABBIT, 20.3);
-        MOBS.put(EntityType.WOLF, 1.2);
-        MOBS.put(EntityType.SQUID, 29.6);
+        MOBS.put("CHICKEN", 34.5);
+        MOBS.put("COW", 53.2);
+        MOBS.put("DONKEY", 23.9);
+        MOBS.put("MULE", 26.9);
+        MOBS.put("HORSE", 27.1);
+        MOBS.put("SHEEP", 45.3);
+        MOBS.put("PIG", 43.2);
+        MOBS.put("RABBIT", 20.3);
+        MOBS.put("WOLF", 1.2);
+        MOBS.put("SQUID", 29.6);
 
-        MOBS.put(EntityType.ZOMBIE, 44.5);
-        MOBS.put(EntityType.SKELETON, 53.2);
-        MOBS.put(EntityType.CREEPER, 33.9);
-        MOBS.put(EntityType.SPIDER, 46.9);
-        MOBS.put(EntityType.ENDERMAN, 67.1);
-        MOBS.put(EntityType.WITCH, 55.3);
-        MOBS.put(EntityType.GHAST, 43.2);
-        MOBS.put(EntityType.SILVERFISH, 10.3);
-        MOBS.put(EntityType.BLAZE, 47.2);
-        MOBS.put(EntityType.ENDERMITE, 19.6);
-        MOBS.put(EntityType.HUSK, 23.9);
-        MOBS.put(EntityType.VINDICATOR, 27.1);
-        MOBS.put(EntityType.EVOKER, 45.3);
-        MOBS.put(EntityType.WITHER_SKELETON, 43.2);
-        MOBS.put(EntityType.STRAY, 20.3);
+        MOBS.put("ZOMBIE" ,10.5);
+        MOBS.put("SKELETON" ,13.2);
+        MOBS.put("CREEPER" ,12.3);
+        MOBS.put("SPIDER" ,14.9);
+        MOBS.put("ENDERMAN" ,67.1);
+        MOBS.put("WITCH" ,55.3);
+        MOBS.put("GHAST" ,43.2);
+        MOBS.put("SILVERFISH" ,10.3);
+        MOBS.put("BLAZE" ,18.2);
+        MOBS.put("ENDERMITE" ,19.6);
+        MOBS.put("HUSK" ,23.9);
+        MOBS.put("VINDICATOR" ,27.1);
+        MOBS.put("EVOKER" ,45.3);
+        MOBS.put("WITHER_SKELETON" ,43.2);
+        MOBS.put("STRAY" ,20.3);
 
     }
 
