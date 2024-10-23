@@ -125,8 +125,7 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:field_disturber"), 50);
         LOCK.put(Material.matchMaterial("hbm:missile_emp_strong"), 50);
         LOCK.put(Material.matchMaterial("hbm:sat_laser"), 56);
-        LOCK.put(Material.matchMaterial("hbm:missile_nuclear"), 70);
-        LOCK.put(Material.matchMaterial("hbm:machine_microwave"), 80);
+        LOCK.put(Material.matchMaterial("hbm:machine_microwave"), 60);
         LOCK.put(Material.matchMaterial("hbm:struct_launcher_core_large"), 30);
         LOCK.put(Material.matchMaterial("hbm:struct_soyuz_core"), 50);
         LOCK.put(Material.matchMaterial("hbm:mp_warhead_10_he"), 32);
