@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,7 +44,7 @@ public class PlayerHandler implements Listener {
     private Map<Material, Double> BLOCK = new HashMap<>();
     private Map<Material, Double> CROPS = new HashMap<>();
     private Map<EntityType, Double> MOBS = new HashMap<>();
-    private final Map<Entity, Player> lastHit = new HashMap<>();
+    private final Map<LivingEntity, Player> lastHit = new HashMap<>();
 
     public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
@@ -68,31 +69,44 @@ public class PlayerHandler implements Listener {
             }
         }
     }
-
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Entity && event.getEntity().getType() != EntityType.PLAYER) {
-            if (event.getDamager() instanceof Player) {
-                Player player = (Player) event.getDamager();
-                Entity mob = (Entity) event.getEntity();
-                lastHit.put(mob, player);
+        Entity entity = event.getEntity();
+        if (entity instanceof LivingEntity) {
+            LivingEntity mob = (LivingEntity) entity;
+            if (mob.getType() != EntityType.PLAYER) {
+                if (event.getDamager() instanceof Player) {
+                    Player player = (Player) event.getDamager();
+                    System.out.println("Mob " + mob.getType() + " was damaged by " + player.getName());
+                    lastHit.put(mob, player);
+                    System.out.println("Recorded " + player.getName() + " as the last hitter of " + mob.getType());
+                }
             }
         }
     }
 
     @EventHandler
     public void onMobDeath(EntityDeathEvent event) {
-        if (lastHit.containsKey(event.getEntity())) {
-            Player killer = lastHit.get(event.getEntity());
-            lastHit.remove(event.getEntity());
-            if (BLOCK.containsKey(event.getEntity())) {
-                double exp = MOBS.get(event.getEntity());
-                expManager(killer, exp);
+        Entity entity = event.getEntity();
+        if (entity instanceof LivingEntity) {
+            LivingEntity deadMob = (LivingEntity) entity;
+            if (lastHit.containsKey(deadMob)) {
+                Player killer = lastHit.get(deadMob);
+                lastHit.remove(deadMob);
+                System.out.println("Mob " + deadMob.getType() + " died. Killer: " + killer.getName());
+
+                if (MOBS.containsKey(deadMob)) {
+                    double exp = MOBS.get(deadMob);
+                    System.out.println("Awarding " + exp + " experience to " + killer.getName());
+                    expManager(killer, exp);
+                } else {
+                    System.out.println("No experience found for " + deadMob.getType());
+                }
+            } else {
+                System.out.println("No record of last hitter for " + deadMob.getType());
             }
         }
     }
-
-
 
     @EventHandler
     public void onMineBlock(BlockBreakEvent event) {
