@@ -226,25 +226,28 @@ public class PlayerHandler implements Listener {
     }
 
     private void expManager(Player player, double exp) {
-        expfac+= (int)exp;
+        expfac += (int) exp;
         lastExpTime = System.currentTimeMillis();
         PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
         playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
         data.savePlayerData(player.getUniqueId(), playerLevel);
         Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+        double expB = 0D;
         if (fac != null) {
-            checkFactionXp(player,fac, exp);
-            double expB= calcExpBoost(player, fac, exp);
-            showExp(player, exp, expB);
+            checkFactionXp(player, fac, exp);
+            expB = calcExpBoost(player, fac, exp);
         }
-        showExp(player, exp, 0);
+        if (expB == 0D) {
+            showExp(player, exp, 0);
+        } else {
+            showExp(player, exp, 0);
+        }
     }
 
     public void showExp(Player player, double exp, double expb) {
         experience += exp;
         expboost += expb;
         String formattedExp = String.format("%.1f", experience);
-
         if (expboost > 0) {
             String formattedExpBoost = String.format("%.1f", expboost);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!!§r §7(§3+§b"+formattedExpBoost+"§7)"));
