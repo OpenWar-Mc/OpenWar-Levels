@@ -14,7 +14,7 @@ public class PlayerLevel {
     public PlayerLevel(int level, double experience, FactionManager factionManager) {
         this.level = level;
         this.experience = experience;
-        this.factionManager = factionManager;
+        this.factionManager = factionManager; //artefact a supprimer si tjrs pas d'utilisation
     }
 
     public int getLevel() {
@@ -28,7 +28,10 @@ public class PlayerLevel {
     public double getExperience() {
         return experience;
     }
-
+    public void addExperience(double experience, Player player){
+        this.experience+=experience;
+        checkLevelUp(player);
+    }
     public void setExperience(double experience, Player player) {
         this.experience = experience;
         checkLevelUp(player);
@@ -47,10 +50,10 @@ public class PlayerLevel {
         int currentLevel = this.level;
         while (currentLevel < expRequis.length - 1 && this.experience >= expRequis[currentLevel + 1]) {
             currentLevel++;
+            this.experience-=expRequis[currentLevel];
         }
         if (currentLevel != this.level) {
             this.level = currentLevel;
-            this.experience = 0;
             player.sendMessage("§8§k§l!!§r §cYou just ranked-up level §4§l" + level + " §8§k§l!!");
         }
     }
