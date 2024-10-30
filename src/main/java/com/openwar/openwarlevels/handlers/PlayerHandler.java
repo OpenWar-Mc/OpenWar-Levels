@@ -1,9 +1,7 @@
 package com.openwar.openwarlevels.handlers;
 
-import com.google.common.eventbus.DeadEvent;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
-import com.openwar.openwarlevels.Main;
 import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import net.md_5.bungee.api.ChatMessageType;
@@ -20,7 +18,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,15 +33,16 @@ public class PlayerHandler implements Listener {
     private final JavaPlugin main;
     private String logo = "§8» §6Levels 8« §7";
 
-    private double experience;
-    private double expboost;
-    private int expfac;
-    private long lastExpTime;
     private final long EXP_TIMEOUT = 4000;
     private Map<Material, Double> BLOCK = new HashMap<>();
     private Map<Material, Double> CROPS = new HashMap<>();
     private Map<String, Double> MOBS = new HashMap<>();
     private final Map<LivingEntity, Player> lastHit = new HashMap<>();
+    private final Map<UUID, Double> experience = new HashMap<>();
+    private final Map<UUID, Double> expboost = new HashMap<>();
+    private final Map<UUID, Double> expfac = new HashMap<>();
+    private final Map<UUID, Long> lastExpTime = new HashMap<>();
+
 
     public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
@@ -64,7 +62,7 @@ public class PlayerHandler implements Listener {
             if (datablock == 7) {
                 if (CROPS.containsKey(blockType)) {
                     double exp = CROPS.get(blockType);
-                    expManager(player, exp);
+                    addXp(player, exp);
                 }
             }
         }
@@ -95,7 +93,7 @@ public class PlayerHandler implements Listener {
                 String mobName = deadMob.getType().name();
                 if (MOBS.containsKey(mobName)) {
                     double exp = MOBS.get(mobName);
-                    expManager(killer, exp);
+                    addXp(killer, exp);
                 }
             }
         }
@@ -111,7 +109,7 @@ public class PlayerHandler implements Listener {
         }
         if (BLOCK.containsKey(type)) {
             double exp = BLOCK.get(type);
-            expManager(player, exp);
+            addXp(player, exp);
         }
     }
     @EventHandler
@@ -217,39 +215,40 @@ public class PlayerHandler implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (System.currentTimeMillis() - lastExpTime > EXP_TIMEOUT) {
-                    experience = 0;
-                    expboost = 0;
+                for (UUID k : lastExpTime.keySet()){
+                    if (System.currentTimeMillis() - lastExpTime.get(k) > EXP_TIMEOUT) {
+                        experience.put(k,0.0);
+                        expboost.put(k,0.0);
+                    }
                 }
             }
         }.runTaskTimer(main, 0L, 20L);
     }
 
-    private void expManager(Player player, double exp) {
-        expfac += (int) exp;
-        lastExpTime = System.currentTimeMillis();
-        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
-        playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
-        data.savePlayerData(player.getUniqueId(), playerLevel);
-        Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+    private void addXp(Player player, double exp) {
+        UUID id=player.getUniqueId();
+        expfac.put(id,exp+expfac.get(id));
+        lastExpTime.put(id, System.currentTimeMillis());
+        Faction fac = fm.getFactionByPlayer(id);
         double expB = 0D;
         if (fac != null) {
             checkFactionXp(player, fac, exp);
             expB = calcExpBoost(player, fac, exp);
         }
-        if (expB == 0D) {
-            showExp(player, exp, 0);
-        } else {
-            showExp(player, exp, 0);
-        }
+        PlayerLevel playerLevel = data.loadPlayerData(id, fm);
+        playerLevel.addExperience(exp, player);
+        playerLevel.addExperience(expB, player);
+        data.savePlayerData(id, playerLevel);
+        experience.put(id,exp+experience.get(id));
+        expboost.put(id,expB+expboost.get(id));
+        showExp(player, exp, expB);
     }
 
     public void showExp(Player player, double exp, double expb) {
-        experience += exp;
-        expboost += expb;
-        String formattedExp = String.format("%.1f", experience);
-        if (expboost > 0) {
-            String formattedExpBoost = String.format("%.1f", expboost);
+        UUID id=player.getUniqueId();
+        String formattedExp = String.format("%.1f", experience.get(id));
+        if (expboost.get(id) > 0.0) {
+            String formattedExpBoost = String.format("%.1f", expboost.get(id));
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!!§r §7(§3+§b"+formattedExpBoost+"§7)"));
         } else {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§f+ §6" + formattedExp + " §7XP §8§k§l!!"));
@@ -259,9 +258,9 @@ public class PlayerHandler implements Listener {
     private void checkFactionXp(Player player, Faction fac, double exp) {
         int facLVL = fac.getLevel();
         float requiredXP = facLVL*278.6F;
-        if (expfac >= requiredXP) {
-            expfac = 0;
-            int xp = calcFac(player.getLevel(), exp);
+        if (expfac.get(player.getUniqueId()) >= requiredXP) {
+            expfac.put(player.getUniqueId(), 0.0);
+            int xp = calcFac(player.getLevel());
             fac.addExp(xp);
         }
     }
@@ -284,20 +283,17 @@ public class PlayerHandler implements Listener {
         } else if (factionLevel == 20) {
             exp = exp;
         }
-        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId(), fm);
-        playerLevel.setExperience((double) (playerLevel.getExperience() + exp), player);
-        data.savePlayerData(player.getUniqueId(), playerLevel);
         return exp;
     }
 
-    private int calcFac(int playerLVL, double exp) {
-        int xp = (int)exp;
-        return 2*playerLVL+xp/2;
+    private int calcFac(int playerLVL) {
+        return 2*playerLVL/3;
     }
 
     @EventHandler
     public void onQuitEvent(PlayerQuitEvent event) {
-        expboost = 0;
-        experience = 0;
+        UUID id=event.getPlayer().getUniqueId();
+        expboost.put(id, 0.0);
+        experience.put(id, 0.0);
     }
 }
