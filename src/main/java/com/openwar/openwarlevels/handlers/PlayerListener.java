@@ -29,8 +29,6 @@ public class PlayerListener implements Listener {
         if (!player.hasPlayedBefore()) {
             PlayerLevel data = new PlayerLevel(0, 0);
             playerDataManager.savePlayerData(playerUUID, data);
-        } else {
-            PlayerLevel data = playerDataManager.loadPlayerData(playerUUID);
         }
     }
 
