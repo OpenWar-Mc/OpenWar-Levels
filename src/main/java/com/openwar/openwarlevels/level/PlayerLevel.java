@@ -9,12 +9,10 @@ public class PlayerLevel {
     };
     private int level;
     private double experience;
-    private FactionManager factionManager;
 
-    public PlayerLevel(int level, double experience, FactionManager factionManager) {
+    public PlayerLevel(int level, double experience) {
         this.level = level;
         this.experience = experience;
-        this.factionManager = factionManager; //artefact a supprimer si tjrs pas d'utilisation
     }
 
     public int getLevel() {

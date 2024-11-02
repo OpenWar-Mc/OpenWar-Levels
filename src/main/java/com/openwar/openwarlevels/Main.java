@@ -64,7 +64,7 @@ public final class Main extends JavaPlugin {
         System.out.println(" OpenWar - Levels, Saving ...");
         for (Player player : getServer().getOnlinePlayers()) {
             UUID playerUUID = player.getUniqueId();
-            PlayerLevel data = pl.loadPlayerData(playerUUID, fm);
+            PlayerLevel data = pl.loadPlayerData(playerUUID);
             pl.savePlayerData(playerUUID, data);
         }
         System.out.println(" ");

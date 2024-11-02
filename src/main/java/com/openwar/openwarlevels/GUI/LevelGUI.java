@@ -8,11 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -106,7 +102,7 @@ public class LevelGUI{
         Map<UUID, Integer> playerLevels = new HashMap<>();
         for (OfflinePlayer player : players) {
             UUID playerUUID = player.getUniqueId();
-            int level = playerDataManager.loadPlayerData(playerUUID, null).getLevel();
+            int level = playerDataManager.loadPlayerData(playerUUID).getLevel();
             playerLevels.put(playerUUID, level);
         }
         List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerLevels.entrySet());
@@ -198,7 +194,7 @@ public class LevelGUI{
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
         if (meta != null) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
-            PlayerLevel playerLevel = playerDataManager.loadPlayerData(player.getUniqueId(), null);
+            PlayerLevel playerLevel = playerDataManager.loadPlayerData(player.getUniqueId());
 
             int level = playerLevel.getLevel();
             double xp = playerLevel.getExperience();
@@ -238,7 +234,7 @@ public class LevelGUI{
     }
 
     public int getPlayerLevel(UUID playerUUID) {
-        return playerDataManager.loadPlayerData(playerUUID, null).getLevel();
+        return playerDataManager.loadPlayerData(playerUUID).getLevel();
     }
 
     public List<Map.Entry<Material, Integer>> getLockList() {

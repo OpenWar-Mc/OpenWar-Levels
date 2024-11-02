@@ -27,10 +27,10 @@ public class PlayerListener implements Listener {
         UUID playerUUID = player.getUniqueId();
 
         if (!player.hasPlayedBefore()) {
-            PlayerLevel data = new PlayerLevel(0, 0, factionManager);
+            PlayerLevel data = new PlayerLevel(0, 0);
             playerDataManager.savePlayerData(playerUUID, data);
         } else {
-            PlayerLevel data = playerDataManager.loadPlayerData(playerUUID, factionManager);
+            PlayerLevel data = playerDataManager.loadPlayerData(playerUUID);
         }
     }
 
@@ -38,7 +38,7 @@ public class PlayerListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
-        PlayerLevel data = playerDataManager.loadPlayerData(playerUUID, factionManager);
+        PlayerLevel data = playerDataManager.loadPlayerData(playerUUID);
         playerDataManager.savePlayerData(playerUUID, data);
     }
 }

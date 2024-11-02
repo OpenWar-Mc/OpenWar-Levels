@@ -1,6 +1,5 @@
 package com.openwar.openwarlevels.level;
 
-import com.openwar.openwarfaction.factions.FactionManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -19,14 +18,14 @@ public class PlayerDataManager {
         loadConfig();
     }
 
-    public PlayerLevel loadPlayerData(UUID uuid, FactionManager factionManager) {
+    public PlayerLevel loadPlayerData(UUID uuid) {
         if (playerCache.containsKey(uuid)) {
             return playerCache.get(uuid);
         }
 
         int level = playerDataConfig.getInt(uuid.toString() + ".level", 0);
         double experience = playerDataConfig.getDouble(uuid.toString() + ".experience", 0);
-        PlayerLevel playerLevel = new PlayerLevel(level, experience, factionManager);
+        PlayerLevel playerLevel = new PlayerLevel(level, experience);
         playerCache.put(uuid, playerLevel);
         return playerLevel;
     }
