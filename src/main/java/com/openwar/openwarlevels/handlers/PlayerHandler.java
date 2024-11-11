@@ -25,6 +25,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerHandler implements Listener {
 
@@ -38,10 +39,10 @@ public class PlayerHandler implements Listener {
     private Map<Material, Double> CROPS = new HashMap<>();
     private Map<String, Double> MOBS = new HashMap<>();
     private final Map<LivingEntity, Player> lastHit = new HashMap<>();
-    private final Map<UUID, Double> experience = new HashMap<>();
-    private final Map<UUID, Double> expboost = new HashMap<>();
+    private final Map<UUID, Double> experience = new ConcurrentHashMap<>();
+    private final Map<UUID, Double> expboost = new ConcurrentHashMap<>();
     private final Map<UUID, Double> expfac = new HashMap<>();
-    private final Map<UUID, Long> lastExpTime = new HashMap<>();
+    private final Map<UUID, Long> lastExpTime = new ConcurrentHashMap<>();
 
 
     public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
@@ -50,6 +51,7 @@ public class PlayerHandler implements Listener {
         this.fm = fm;
         loadList();
         startExpTimer();
+        startCleanupTask();
     }
 
     @EventHandler
@@ -142,7 +144,6 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_copper"), 42.0);
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_asbestos"), 252.0);
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_lithium"), 252.0);
-        BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_asbestos"), 252.0);
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_gas"), 60.48);
         BLOCK.put(Material.matchMaterial("hbm:ore_uranium"), 43.2);
         BLOCK.put(Material.matchMaterial("hbm:ore_uranium_scorched"), 43.2);
@@ -232,9 +233,14 @@ public class PlayerHandler implements Listener {
     }
 
     private void addXp(Player player, double exp) {
-        UUID id=player.getUniqueId();
-        expfac.put(id,exp+expfac.get(id));
+        UUID id = player.getUniqueId();
+        experience.putIfAbsent(id, 0.0);
+        expboost.putIfAbsent(id, 0.0);
+        expfac.putIfAbsent(id, 0.0);
+
+        expfac.put(id, exp + expfac.get(id));
         lastExpTime.put(id, System.currentTimeMillis());
+
         Faction fac = fm.getFactionByPlayer(id);
         double expB = 0D;
         if (fac != null) {
@@ -245,8 +251,8 @@ public class PlayerHandler implements Listener {
         playerLevel.addExperience(exp, player);
         playerLevel.addExperience(expB, player);
         data.savePlayerData(id, playerLevel);
-        experience.put(id,exp+experience.get(id));
-        expboost.put(id,expB+expboost.get(id));
+        experience.put(id, exp + experience.get(id));
+        expboost.put(id, expB + expboost.get(id));
         showExp(player, exp, expB);
     }
 
@@ -273,22 +279,12 @@ public class PlayerHandler implements Listener {
 
     private double calcExpBoost(Player player, Faction faction, double exp) {
         int factionLevel = faction.getLevel();
-        if  (factionLevel < 3) {
-            return 0;
-        }
-        if (factionLevel < 6) {
-            exp = exp*0.15;
-        } else if (factionLevel < 10) {
-            exp = exp*0.35;
-        } else if (factionLevel < 14) {
-            exp = exp*0.55;
-        } else if (factionLevel < 18) {
-            exp = exp*0.75;
-        } else if (factionLevel < 19) {
-            exp = exp*0.90;
-        } else if (factionLevel == 20) {
-            exp = exp;
-        }
+        if (factionLevel < 3) return 0;
+        if (factionLevel < 6) return exp * 0.15;
+        if (factionLevel < 10) return exp * 0.35;
+        if (factionLevel < 14) return exp * 0.55;
+        if (factionLevel < 18) return exp * 0.75;
+        if (factionLevel < 19) return exp * 0.90;
         return exp;
     }
 
@@ -301,5 +297,13 @@ public class PlayerHandler implements Listener {
         UUID id=event.getPlayer().getUniqueId();
         expboost.put(id, 0.0);
         experience.put(id, 0.0);
+    }
+    private void startCleanupTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                lastHit.clear();
+            }
+        }.runTaskTimer(main, 0L, 1200L);
     }
 }
