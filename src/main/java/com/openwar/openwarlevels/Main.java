@@ -1,6 +1,7 @@
 package com.openwar.openwarlevels;
 
 import com.openwar.openwarfaction.factions.FactionManager;
+import com.openwar.openwarlevels.GUI.ItemBuilder;
 import com.openwar.openwarlevels.GUI.LevelGUI;
 import com.openwar.openwarlevels.commands.LevelCommand;
 import com.openwar.openwarlevels.commands.UnlockCommand;
@@ -39,6 +40,10 @@ public final class Main extends JavaPlugin {
         System.out.println(" ");
         System.out.println(" OpenWar - Levels, loading ...");
         if (!setupDepend()) {return;}
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+        ItemBuilder.loadTextures(getDataFolder());
         MenuHandler menuHandler = new MenuHandler(this, null);
         LevelGUI levelGUI = new LevelGUI(pl, this, menuHandler);
         menuHandler.setLevelGUI(levelGUI);

@@ -22,6 +22,7 @@ public class LevelGUI{
     private PlayerDataManager playerDataManager;
     private JavaPlugin main;
     private MenuHandler mh;
+    private ItemBuilder ib;
 
     public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh) {
         this.main = main;
@@ -190,7 +191,7 @@ public class LevelGUI{
     }
 
     public ItemStack getPlayerHeadInfo(String playerName) {
-        ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack playerHead = ib.setPlayerHead(playerName);
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
         if (meta != null) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
@@ -203,7 +204,6 @@ public class LevelGUI{
             double percent = (xp / nextLevelXp) * 100;
             int progress = (int) ((xp / nextLevelXp) * 10);
             int total = 10;
-            meta.setOwningPlayer(player);
             meta.setDisplayName("§4§l" + playerName);
             meta.setLore(Arrays.asList(
                     "§7Level §8: §c" + level,
