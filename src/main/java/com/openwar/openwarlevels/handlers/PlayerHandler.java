@@ -2,22 +2,21 @@ package com.openwar.openwarlevels.handlers;
 
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
+import com.openwar.openwarlevels.GUI.ItemBuilder;
 import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -292,6 +291,13 @@ public class PlayerHandler implements Listener {
         return 2*playerLVL/3;
     }
 
+
+    @EventHandler
+    public void onJoinEvent(PlayerJoinEvent event) {
+        if (!event.getPlayer().hasPlayedBefore()) {
+            ItemBuilder.setPlayerHead(event.getPlayer().getName());
+        }
+    }
     @EventHandler
     public void onQuitEvent(PlayerQuitEvent event) {
         UUID id=event.getPlayer().getUniqueId();
