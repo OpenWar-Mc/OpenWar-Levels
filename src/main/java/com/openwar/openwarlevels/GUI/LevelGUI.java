@@ -62,8 +62,8 @@ public class LevelGUI{
             ItemStack leaderHead = getPlayerHeadInfo(player.getName());
             Bukkit.getScheduler().runTask(main, () -> {
                 menu.setItem(11, leaderHead);
-                menu.setItem(13, getLeaderboard());
-                menu.setItem(15, getUnlock());
+                menu.setItem(13, getHeadItem("Addelburgh", "§4§lLeaderBoard §f- §cServers", "§7Every players levels !", "", ""));
+                menu.setItem(15, getHeadItem("Kevos","§4§lUnlocked §f- §cItems", "§7Every items you have unlocked !", "", ""));
                 player.updateInventory();
             });
         });
@@ -121,7 +121,9 @@ public class LevelGUI{
         addBorders(menu, 6);
         int index = 10;
         List<UUID> sortedLeaderboard = generateLeaderboardsListSorted();
-        for (int i = 0; i < 37; i++) {
+        int maxItems = Math.min(37, sortedLeaderboard.size());
+
+        for (int i = 0; i < maxItems; i++) {
             UUID uuid = sortedLeaderboard.get(i);
             OfflinePlayer pl = Bukkit.getOfflinePlayer(uuid);
             int finalIndex = index;
@@ -132,8 +134,10 @@ public class LevelGUI{
                     player.updateInventory();
                 });
             });
-            ItemStack head = getIconItem(Material.SKULL_ITEM, "§4§l "+pl.getName(), "§7Loading data... ", "", "");
+            ItemStack head = getIconItem(Material.SKULL_ITEM, "§4§l " + pl.getName(), "§7Loading data... ", "", "");
             menu.setItem(index, head);
+
+
             if (index == 16 || index == 25 || index == 34) {
                 index += 2;
             } else if (index == 43) {
@@ -191,30 +195,26 @@ public class LevelGUI{
     }
 
     public ItemStack getPlayerHeadInfo(String playerName) {
-        //ItemStack playerHead = ib.setPlayerHead(playerName);
         ItemStack playerHead = ItemBuilder.setPlayerHead(playerName);
-//        ItemStack playerHead = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-//        SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
-//        if (meta != null) {
-//            OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
-//            PlayerLevel playerLevel = playerDataManager.loadPlayerData(player.getUniqueId());
-//
-//            int level = playerLevel.getLevel();
-//            double xp = playerLevel.getExperience();
-//            double nextLevelXp = playerLevel.getExpNextLevel();
-//
-//            double percent = (xp / nextLevelXp) * 100;
-//            int progress = (int) ((xp / nextLevelXp) * 10);
-//            int total = 10;
-//            meta.setOwningPlayer(player);
-//            meta.setDisplayName("§4§l" + playerName);
-//            meta.setLore(Arrays.asList(
-//                    "§7Level §8: §c" + level,
-//                    "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
-//                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
-//            ));
-//            playerHead.setItemMeta(meta);
-//        }
+        SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
+        if (meta != null) {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
+            PlayerLevel playerLevel = playerDataManager.loadPlayerData(player.getUniqueId());
+            int level = playerLevel.getLevel();
+            double xp = playerLevel.getExperience();
+            double nextLevelXp = playerLevel.getExpNextLevel();
+
+            double percent = (xp / nextLevelXp) * 100;
+            int progress = (int) ((xp / nextLevelXp) * 10);
+            int total = 10;
+            meta.setDisplayName("§4§l" + playerName);
+            meta.setLore(Arrays.asList(
+                    "§7Level §8: §c" + level,
+                    "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
+                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
+            ));
+            playerHead.setItemMeta(meta);
+        }
         return playerHead;
     }
 
@@ -272,10 +272,9 @@ public class LevelGUI{
     }
 
     private ItemStack getHeadItem(String headName, String name, String lore1, String lore2, String lore3) {
-        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack head = ItemBuilder.setPlayerHead(headName);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         if (meta != null) {
-            meta.setOwningPlayer(Bukkit.getOfflinePlayer(headName));
             meta.setDisplayName(name);
             lore1 = lore1 != null ? lore1 : "";
             lore2 = lore2 != null ? lore2 : "";
@@ -298,30 +297,6 @@ public class LevelGUI{
             }
         }
         return bar.toString();
-    }
-    public static ItemStack getLeaderboard() {
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        if (skullMeta != null) {
-            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("Kevos"));
-            skullMeta.setDisplayName("§4§lLeaderBoard §f- §cServers");
-            skullMeta.setLore(Arrays.asList("§7Every players levels !"));
-            skull.setItemMeta(skullMeta);
-        }
-
-        return skull;
-    }
-    public static ItemStack getUnlock() {
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        if (skullMeta != null) {
-            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer("Addelburgh"));
-            skullMeta.setDisplayName("§4§lUnlocked §f- §cItems");
-            skullMeta.setLore(Arrays.asList("§7Every items you have unlocked !"));
-            skull.setItemMeta(skullMeta);
-        }
-
-        return skull;
     }
 
 }
