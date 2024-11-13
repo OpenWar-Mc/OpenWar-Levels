@@ -43,16 +43,13 @@ public class ItemBuilder {
 
         textureConfig.getConfigurationSection("player_heads").getKeys(false).forEach(playerName -> {
             String texture = textureConfig.getString("player_heads." + playerName);
-            System.out.println("Textures cached: "+playerName);
             cachedTextures.put(playerName, texture);
         });
     }
 
     public static ItemStack setPlayerHead(String playerName) {
         String encodedTexture = cachedTextures.get(playerName);
-        System.out.println("PlayerHead 1");
         if (encodedTexture == null) {
-            System.out.println("PlayerHead was null 2");
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
             encodedTexture = fetchTextureFromExternalSource(player);
             cachedTextures.put(playerName, encodedTexture);
@@ -68,7 +65,6 @@ public class ItemBuilder {
             Field profileField = headMeta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             profileField.set(headMeta, profile);
-            System.out.println("PlayerHead 3");
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
