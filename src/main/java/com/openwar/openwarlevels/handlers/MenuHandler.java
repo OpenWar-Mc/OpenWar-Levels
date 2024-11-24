@@ -84,7 +84,7 @@ public class MenuHandler implements Listener {
             }
         }
 
-        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §8§k§l!!§r")) {
+        if (view.getTitle().startsWith("§8§k§l!!§r §4§lLeaderBoard §8§k§l!!")) {
             event.setCancelled(true);
         }
     }
