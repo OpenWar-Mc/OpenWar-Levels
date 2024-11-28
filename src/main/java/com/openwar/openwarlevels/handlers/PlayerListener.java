@@ -14,11 +14,9 @@ import java.util.UUID;
 public class PlayerListener implements Listener {
 
     private final PlayerDataManager playerDataManager;
-    private final FactionManager factionManager;
 
     public PlayerListener(PlayerDataManager playerDataManager, FactionManager fm) {
         this.playerDataManager = playerDataManager;
-        this.factionManager = fm;
     }
 
     @EventHandler
