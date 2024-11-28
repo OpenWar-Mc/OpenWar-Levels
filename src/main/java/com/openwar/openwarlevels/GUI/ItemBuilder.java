@@ -22,11 +22,21 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ItemBuilder {
+    private static ItemBuilder instance;
     private static final Map<String, String> cachedTextures = new HashMap<>();
-    private static FileConfiguration textureConfig;
-    private static File textureFile;
+    private FileConfiguration textureConfig;
+    private File textureFile;
 
-    public static void loadTextures(File pluginDataFolder) {
+    private ItemBuilder() {}
+
+    public static ItemBuilder getInstance() {
+        if (instance == null) {
+            instance = new ItemBuilder();
+        }
+        return instance;
+    }
+
+    public void loadTextures(File pluginDataFolder) {
         textureFile = new File(pluginDataFolder, "textures.yml");
         if (!textureFile.exists()) {
             try {
@@ -47,7 +57,7 @@ public class ItemBuilder {
         });
     }
 
-    public static ItemStack setPlayerHead(String playerName) {
+    public ItemStack setPlayerHead(String playerName) {
         String encodedTexture = cachedTextures.get(playerName);
         if (encodedTexture == null) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
@@ -73,7 +83,7 @@ public class ItemBuilder {
         return head;
     }
 
-    private static void saveTextures() {
+    private void saveTextures() {
         try {
             textureConfig.save(textureFile);
         } catch (IOException e) {
@@ -81,8 +91,7 @@ public class ItemBuilder {
         }
     }
 
-
-    private static String fetchTextureFromExternalSource(OfflinePlayer player) {
+    private String fetchTextureFromExternalSource(OfflinePlayer player) {
         String uuid = player.getUniqueId().toString().replace("-", "");
         String texture = null;
 
@@ -107,3 +116,4 @@ public class ItemBuilder {
         return texture != null ? texture : "Base64EncodedTextureExample";
     }
 }
+
