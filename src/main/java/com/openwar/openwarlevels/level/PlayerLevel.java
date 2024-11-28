@@ -2,9 +2,13 @@ package com.openwar.openwarlevels.level;
 
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.handlers.LevelLock;
+import com.openwar.openwarlevels.utils.Tuple;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class PlayerLevel {
     private static final int[] expRequis = {
@@ -59,6 +63,18 @@ public class PlayerLevel {
             ArrayList<String> items = LevelLock.getWhatUnlocked(level);
             for (String item : items) {
                 player.sendMessage("§8- §4Unlocked §c"+item);
+            }
+            Tuple<String, Material, Integer> recomp = LevelLock.getReward(level);
+            String name = recomp.getFirst();
+            Integer amount = recomp.getThird();
+            Material material = recomp.getSecond();
+            ItemStack item = new ItemStack(material, amount);
+            player.sendMessage("§8- §3Rewards §8» §f+"+amount+" §b"+name);
+            if (player.getInventory().firstEmpty() != -1) {
+                player.getInventory().addItem(item);
+            } else {
+                player.getWorld().dropItemNaturally(player.getLocation(), item);
+                player.sendMessage("§8- §cRewards dropped on ground, inventory full !");
             }
         }
     }
