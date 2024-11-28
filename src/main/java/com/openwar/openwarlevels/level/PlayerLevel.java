@@ -1,7 +1,10 @@
 package com.openwar.openwarlevels.level;
 
 import com.openwar.openwarfaction.factions.FactionManager;
+import com.openwar.openwarlevels.handlers.LevelLock;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
 
 public class PlayerLevel {
     private static final int[] expRequis = {
@@ -53,6 +56,10 @@ public class PlayerLevel {
         if (currentLevel != this.level) {
             this.level = currentLevel;
             player.sendMessage("§8§k§l!!§r §cYou just ranked-up level §4§l" + level + " §8§k§l!!");
+            ArrayList<String> items = LevelLock.getWhatUnlocked(level);
+            for (String item : items) {
+                player.sendMessage("§8- §4Unlocked §c"+item);
+            }
         }
     }
 }
