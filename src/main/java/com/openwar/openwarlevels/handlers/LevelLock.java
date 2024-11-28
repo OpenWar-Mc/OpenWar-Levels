@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,35 @@ public class LevelLock implements Listener {
         this.fm = fm;
         loadLock();
     }
+    public static String formatString(String input) {
+        if (input.contains(":")) {
+            input = input.split(":")[1];
+        }
+        return capitalizeWords(input.replace("_", " "));
+    }
 
+    private static String capitalizeWords(String input) {
+        String[] words = input.split(" ");
+        StringBuilder formatted = new StringBuilder();
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                formatted.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1).toLowerCase())
+                        .append(" ");
+            }
+        }
+        return formatted.toString().trim();
+    }
+    public static ArrayList<String> getWhatUnlocked(int lvl) {
+        ArrayList<String> unlockedItems = new ArrayList<>();
+        for (Map.Entry<Material, Integer> entry : LOCK.entrySet()) {
+            if (entry.getValue() == lvl) {
+                String oneItem = formatString(entry.getValue().toString());
+                unlockedItems.add(oneItem);
+            }
+        }
+        return unlockedItems;
+    }
 
     //@EventHandler
     //public void onInteract(PlayerInteractEvent event) {
