@@ -43,7 +43,7 @@ public final class Main extends JavaPlugin {
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
-        ItemBuilder.loadTextures(getDataFolder());
+        ItemBuilder.getInstance().loadTextures(getDataFolder());
         MenuHandler menuHandler = new MenuHandler(this, null);
         LevelGUI levelGUI = new LevelGUI(pl, this, menuHandler);
         menuHandler.setLevelGUI(levelGUI);
