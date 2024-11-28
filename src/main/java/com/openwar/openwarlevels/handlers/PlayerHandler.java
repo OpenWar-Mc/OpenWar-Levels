@@ -295,7 +295,7 @@ public class PlayerHandler implements Listener {
     @EventHandler
     public void onJoinEvent(PlayerJoinEvent event) {
         if (!event.getPlayer().hasPlayedBefore()) {
-            ItemBuilder.setPlayerHead(event.getPlayer().getName());
+            ItemBuilder.getInstance().setPlayerHead(event.getPlayer().getName());
         }
     }
     @EventHandler
