@@ -22,7 +22,6 @@ public class LevelGUI{
     private PlayerDataManager playerDataManager;
     private JavaPlugin main;
     private MenuHandler mh;
-    private ItemBuilder ib;
 
     public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh) {
         this.main = main;
@@ -195,7 +194,7 @@ public class LevelGUI{
     }
 
     public ItemStack getPlayerHeadInfo(String playerName) {
-        ItemStack playerHead = ItemBuilder.setPlayerHead(playerName);
+        ItemStack playerHead = ItemBuilder.getInstance().setPlayerHead(playerName);
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
         if (meta != null) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
@@ -272,7 +271,7 @@ public class LevelGUI{
     }
 
     private ItemStack getHeadItem(String headName, String name, String lore1, String lore2, String lore3) {
-        ItemStack head = ItemBuilder.setPlayerHead(headName);
+        ItemStack head = ItemBuilder.getInstance().setPlayerHead(headName);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(name);
