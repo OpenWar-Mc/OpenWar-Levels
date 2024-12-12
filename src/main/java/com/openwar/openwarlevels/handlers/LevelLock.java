@@ -1,7 +1,6 @@
 package com.openwar.openwarlevels.handlers;
 
 import com.openwar.openwarfaction.factions.FactionManager;
-import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarlevels.utils.Tuple;
 import net.md_5.bungee.api.ChatMessageType;
@@ -13,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;

@@ -1,7 +1,6 @@
 package com.openwar.openwarlevels.commands;
 
 import com.openwar.openwarlevels.GUI.LevelGUI;
-import com.openwar.openwarlevels.level.PlayerDataManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

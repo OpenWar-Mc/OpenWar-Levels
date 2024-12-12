@@ -2,7 +2,6 @@ package com.openwar.openwarlevels.GUI;
 
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
-import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

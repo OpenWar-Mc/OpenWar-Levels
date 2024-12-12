@@ -1,6 +1,5 @@
 package com.openwar.openwarlevels.handlers;
 
-import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarfaction.factions.FactionManager;
 import org.bukkit.entity.Player;

@@ -9,7 +9,6 @@ import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.handlers.PlayerHandler;
 import com.openwar.openwarlevels.handlers.PlayerListener;
-import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;

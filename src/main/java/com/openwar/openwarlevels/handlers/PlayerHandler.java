@@ -3,7 +3,6 @@ package com.openwar.openwarlevels.handlers;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.GUI.ItemBuilder;
-import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
