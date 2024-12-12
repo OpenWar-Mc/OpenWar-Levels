@@ -16,6 +16,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -82,6 +83,17 @@ public class PlayerHandler implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player deceased = event.getEntity();
+        Player killer = deceased.getKiller();
+        PlayerLevel victim = data.loadPlayerData(deceased.getUniqueId());
+        victim.addDeaths(1);
+        if (!fm.getFactionByPlayer(killer.getUniqueId()).equals(fm.getFactionByPlayer(deceased.getUniqueId()))) {
+            PlayerLevel attacker = data.loadPlayerData(killer.getUniqueId());
+            attacker.addKills(1);
+        }
+    }
 
     @EventHandler
     public void onMobDeath(EntityDeathEvent event) {
