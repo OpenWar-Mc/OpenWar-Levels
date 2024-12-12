@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.handlers;
 
+import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarlevels.utils.Tuple;
@@ -18,12 +19,12 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class LevelLock implements Listener {
-    private PlayerDataManager data;
+    private LevelSaveAndLoadBDD data;
     private FactionManager fm;
     private JavaPlugin main;
     public static Map<Material, Integer> LOCK = new HashMap<>();
     public static Map<Tuple<Material, Integer, Integer>, Integer> RECOMPENSE = new HashMap<>();
-    public LevelLock(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
+    public LevelLock(JavaPlugin main, LevelSaveAndLoadBDD data, FactionManager fm) {
         this.data = data;
         this.main = main;
         this.fm = fm;
