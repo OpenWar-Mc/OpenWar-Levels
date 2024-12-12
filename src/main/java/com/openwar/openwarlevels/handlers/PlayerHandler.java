@@ -88,9 +88,13 @@ public class PlayerHandler implements Listener {
         Player deceased = event.getEntity();
         Player killer = deceased.getKiller();
         PlayerLevel victim = data.loadPlayerData(deceased.getUniqueId());
+        PlayerLevel attacker = data.loadPlayerData(killer.getUniqueId());
         victim.addDeaths(1);
-        if (!fm.getFactionByPlayer(killer.getUniqueId()).equals(fm.getFactionByPlayer(deceased.getUniqueId()))) {
-            PlayerLevel attacker = data.loadPlayerData(killer.getUniqueId());
+        if (fm.getFactionByPlayer(killer.getUniqueId()) != null && (fm.getFactionByPlayer(deceased.getUniqueId()) != null)) {
+            if (!fm.getFactionByPlayer(killer.getUniqueId()).getName().equals(fm.getFactionByPlayer(deceased.getUniqueId()).getName())) {
+                attacker.addKills(1);
+            }
+        } else {
             attacker.addKills(1);
         }
     }
