@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.handlers;
 
+import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarfaction.factions.FactionManager;
 import org.bukkit.entity.Player;
@@ -12,9 +13,9 @@ import java.util.UUID;
 
 public class PlayerListener implements Listener {
 
-    private final PlayerDataManager playerDataManager;
+    private final LevelSaveAndLoadBDD playerDataManager;
 
-    public PlayerListener(PlayerDataManager playerDataManager, FactionManager fm) {
+    public PlayerListener(LevelSaveAndLoadBDD playerDataManager, FactionManager fm) {
         this.playerDataManager = playerDataManager;
     }
 
