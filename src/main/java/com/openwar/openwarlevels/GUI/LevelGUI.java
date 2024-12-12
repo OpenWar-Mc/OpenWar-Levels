@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.GUI;
 
+import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.level.PlayerLevel;
@@ -18,11 +19,11 @@ import java.util.stream.Collectors;
 
 public class LevelGUI{
 
-    private PlayerDataManager playerDataManager;
+    private LevelSaveAndLoadBDD playerDataManager;
     private JavaPlugin main;
     private MenuHandler mh;
 
-    public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh) {
+    public LevelGUI(LevelSaveAndLoadBDD playerDataManager, JavaPlugin main, MenuHandler mh) {
         this.main = main;
         this.playerDataManager = playerDataManager;
         this.mh = mh;
