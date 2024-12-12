@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.handlers;
 
+import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.GUI.ItemBuilder;
@@ -27,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerHandler implements Listener {
 
-    private final PlayerDataManager data;
+    private final LevelSaveAndLoadBDD data;
     private final FactionManager fm;
     private final JavaPlugin main;
     private String logo = "§8» §6Levels 8« §7";
@@ -43,7 +44,7 @@ public class PlayerHandler implements Listener {
     private final Map<UUID, Long> lastExpTime = new ConcurrentHashMap<>();
 
 
-    public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
+    public PlayerHandler(JavaPlugin main, LevelSaveAndLoadBDD data, FactionManager fm) {
         this.data = data;
         this.main = main;
         this.fm = fm;
