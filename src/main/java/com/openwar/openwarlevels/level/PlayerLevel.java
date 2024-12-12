@@ -65,6 +65,7 @@ public class PlayerLevel {
                 player.sendMessage("§8- §4Unlocked §c"+item);
             }
             Tuple<String, Material, Integer> recomp = LevelLock.getReward(level);
+            assert recomp != null;
             String name = recomp.getFirst();
             Integer amount = recomp.getThird();
             Material material = recomp.getSecond();
