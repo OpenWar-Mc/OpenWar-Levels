@@ -54,12 +54,13 @@ public class LevelLock implements Listener {
         ArrayList<String> unlockedItems = new ArrayList<>();
         for (Map.Entry<Material, Integer> entry : LOCK.entrySet()) {
             if (entry.getValue() == lvl) {
-                String oneItem = formatString(entry.getValue().toString());
+                String oneItem = formatString(entry.getKey().toString());
                 unlockedItems.add(oneItem);
             }
         }
         return unlockedItems;
     }
+
 
     //@EventHandler
     //public void onInteract(PlayerInteractEvent event) {
