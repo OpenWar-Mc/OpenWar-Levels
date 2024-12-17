@@ -16,11 +16,64 @@ public class PlayerLevel {
     };
     private int level;
     private double experience;
+    private int kills;
+    private int deaths;
+    private double gain;
+    private double loss;
+    private long playTime;
 
-    public PlayerLevel(int level, double experience) {
+    public PlayerLevel(int level, double experience, int kills, int deaths, double gain, double loss, long playTime) {
         this.level = level;
         this.experience = experience;
+        this.kills = kills;
+        this.deaths = deaths;
+        this.gain = gain;
+        this.loss = loss;
+        this.playTime = playTime;
     }
+
+    public long getPlayTime() {return playTime;}
+    public int getKills() {return kills;}
+    public int getDeaths() {return deaths;}
+    public double getGain() {return gain;}
+    public double getLoss() {return loss;}
+
+    public void setPlayTime(long playTime) {this.playTime = playTime;}
+
+    public void setKills(int kills) {
+        this.kills = kills;
+    }
+
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
+    }
+
+    public void setGain(double gain) {
+        this.gain = gain;
+    }
+
+    public void setLoss(double loss) {
+        this.loss = loss;
+    }
+
+    public void addKills(int kills) {
+        this.kills = this.kills + kills;
+    }
+
+    public void addDeaths(int deaths) {
+        this.deaths = this.deaths + deaths;
+    }
+
+    public void addGain(double gain) {
+        this.gain = this.gain + gain;
+    }
+
+    public void addLoss(double loss) {
+        this.loss = this.loss + loss;
+    }
+
+    public void addPlayTime(long playTime) {this.playTime = this.playTime +playTime;}
+
 
     public int getLevel() {
         return level;

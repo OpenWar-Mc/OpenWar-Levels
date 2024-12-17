@@ -11,6 +11,8 @@ import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.handlers.PlayerHandler;
 import com.openwar.openwarlevels.handlers.PlayerListener;
 import com.openwar.openwarlevels.level.PlayerLevel;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,14 +23,17 @@ import java.util.UUID;
 public final class Main extends JavaPlugin {
     private LevelSaveAndLoadBDD pl;
     private FactionManager fm;
+    private Economy economy;
 
     private boolean setupDepend() {
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         RegisteredServiceProvider<LevelSaveAndLoadBDD> levelProvider = getServer().getServicesManager().getRegistration(LevelSaveAndLoadBDD.class);
         RegisteredServiceProvider<FactionManager> factionDataProvider = getServer().getServicesManager().getRegistration(FactionManager.class);
-        if (levelProvider == null || factionDataProvider == null) {
+        if (levelProvider == null || factionDataProvider == null || rsp == null) {
             System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!");
             return false;
         }
+        economy = rsp.getProvider();
         pl = levelProvider.getProvider();
         fm = factionDataProvider.getProvider();
         return true;
@@ -58,8 +63,24 @@ public final class Main extends JavaPlugin {
         System.out.println(" OpenWar - Levels, loaded !");
         System.out.println(" ");
         System.out.println("====================================");
+        startAutoSaveTask();
+    }
 
-
+    public void startAutoSaveTask() {
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            @Override
+            public void run() {
+                for (Player player : getServer().getOnlinePlayers()) {
+                    UUID playerUUID = player.getUniqueId();
+                    PlayerLevel data = pl.loadPlayerData(playerUUID);
+                    pl.savePlayerData(playerUUID, data);
+                    double rmoney = economy.getBalance(player);
+                    int money = (int) Math.round(rmoney);
+                    int level = data.getLevel();
+                    player.performCommand("setall Level: " + level + ";Money: " + money + "$;" + player.getName());
+                }
+            }
+        }, 0L, 250L);
     }
 
     @Override

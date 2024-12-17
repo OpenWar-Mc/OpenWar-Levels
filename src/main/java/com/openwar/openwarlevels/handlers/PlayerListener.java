@@ -25,7 +25,7 @@ public class PlayerListener implements Listener {
         UUID playerUUID = player.getUniqueId();
 
         if (!player.hasPlayedBefore()) {
-            PlayerLevel data = new PlayerLevel(0, 0);
+            PlayerLevel data = new PlayerLevel(0, 0, 0, 0 ,0,0, 0);
             playerDataManager.savePlayerData(playerUUID, data);
         }
     }
