@@ -265,7 +265,8 @@ public class PlayerHandler implements Listener {
         PlayerLevel playerLevel = data.loadPlayerData(id);
         playerLevel.addExperience(exp, player);
         playerLevel.addExperience(expB, player);
-        data.savePlayerData(id, playerLevel);
+        //Reduce laaaaggggzzzzzzzzz
+        //data.savePlayerData(id, playerLevel);
         experience.put(id, exp + experience.get(id));
         expboost.put(id, expB + expboost.get(id));
         showExp(player, exp, expB);
