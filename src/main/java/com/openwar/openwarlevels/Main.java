@@ -77,7 +77,7 @@ public final class Main extends JavaPlugin {
                     double rmoney = economy.getBalance(player);
                     int money = (int) Math.round(rmoney);
                     int level = data.getLevel();
-                    player.performCommand("setall Level: " + level + ";Money: " + money + "$;" + player.getName());
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "setall Level: " + level + ";Money: " + money + "$;" + player.getName());
                 }
             }
         }, 0L, 250L);
