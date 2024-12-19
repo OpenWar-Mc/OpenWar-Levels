@@ -54,12 +54,13 @@ public class LevelLock implements Listener {
         ArrayList<String> unlockedItems = new ArrayList<>();
         for (Map.Entry<Material, Integer> entry : LOCK.entrySet()) {
             if (entry.getValue() == lvl) {
-                String oneItem = formatString(entry.getValue().toString());
+                String oneItem = formatString(entry.getKey().toString());
                 unlockedItems.add(oneItem);
             }
         }
         return unlockedItems;
     }
+
 
     //@EventHandler
     //public void onInteract(PlayerInteractEvent event) {
@@ -115,25 +116,26 @@ public class LevelLock implements Listener {
 
     public void loadRecompense() {
         //ITEM, MAX AMOUNT, REQUIRED LVL MIN, CHANCE PERCENT
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:concrete"), 128, 3), 50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_lithium"), 4, 1),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_advanced"), 2, 3),20);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("golden_ingot"), 32, 0),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("diamond"), 16, 4),5);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("coal"), 128, 0),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_steel"), 64, 2),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:concrete_smooth"), 128, 4),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:brick_concrete"), 64, 8),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_copper_torus"), 2, 7),20);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_red_copper"), 64, 6),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:circuit_copper"), 10, 6),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:circuit_raw"), 15, 3),40);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:concrete"), 256, 3), 50);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_lithium"), 8, 1),30);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_advanced"), 5, 3),20);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("golden_ingot"), 64, 0),30);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("diamond"), 32, 4),5);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("coal"), 170, 0),50);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_steel"), 128, 2),40);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:concrete_smooth"), 256, 4),50);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:brick_concrete"), 128, 8),30);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_copper_torus"), 4, 7),20);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_red_copper"), 128, 6),40);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:circuit_copper"), 15, 6),30);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:circuit_raw"), 20, 3),40);
         RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_generic"), 6, 0),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:pipes_steel"), 2, 6),20);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_gold_torus"), 2, 8),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_copper"), 4, 3),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("iron_ingot"), 64, 0),50);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:pipes_steel"), 4, 6),20);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_gold_torus"), 6, 8),30);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_copper"), 8, 3),40);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("iron_ingot"), 128, 0),50);
         RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_advanced_alloy"), 48, 8),30);
+        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:drax"), 1, 1), 1);
     }
 
     public static Tuple<String, Material, Integer> getReward(int playerLevel) {
