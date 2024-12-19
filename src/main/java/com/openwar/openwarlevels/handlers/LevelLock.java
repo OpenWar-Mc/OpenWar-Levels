@@ -231,5 +231,6 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:turret_chekhov"), 56);
         LOCK.put(Material.matchMaterial("hbm:turret_fritz"), 46);
         LOCK.put(Material.matchMaterial("mwc:weapon_workbench"), 40);
+        LOCK.put(Material.matchMaterial("hbm:missile_soyuz0"), 40);
     }
 }
