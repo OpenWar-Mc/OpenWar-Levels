@@ -6,12 +6,15 @@ import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarlevels.utils.Tuple;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -103,7 +106,6 @@ public class LevelLock implements Listener {
 
         if (event.getItem() != null) {
             Material itemType = event.getItem().getType();
-
             if (LOCK.containsKey(itemType)) {
                 int requiredLevel = LOCK.get(itemType);
                 if (requiredLevel > level) {
@@ -165,12 +167,14 @@ public class LevelLock implements Listener {
     }
 
     private static int calculateQuantity(int playerLevel, int maxAmount) {
-        int baseAmount = ThreadLocalRandom.current().nextInt(2, maxAmount + 1) / 2 * 2;
+        if (maxAmount < 2) {
+            return 0;
+        }
+        int baseAmount = ThreadLocalRandom.current().nextInt(1, maxAmount / 2 + 1) * 2;
         double multiplier = 1 + (playerLevel * 0.1);
-        return Math.min((int) (baseAmount * multiplier), maxAmount);
-        //TODO supposé donner au joueur que des quantité multiple de deux mais ça marche pas parce que c'est avant donc refait stp
+        int result = (int) (baseAmount * multiplier);
+        return Math.min(result / 2 * 2, maxAmount);
     }
-
     public static void loadLock() {
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 10);
         LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);

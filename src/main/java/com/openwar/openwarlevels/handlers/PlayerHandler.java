@@ -299,9 +299,12 @@ public class PlayerHandler implements Listener {
     private void checkFactionXp(Player player, Faction fac, double exp) {
         int facLVL = fac.getLevel();
         float requiredXP = facLVL*278.6F;
+        if (requiredXP == 0) {
+            requiredXP = 100F;
+        }
         if (expfac.get(player.getUniqueId()) >= requiredXP) {
             expfac.put(player.getUniqueId(), 0.0);
-            int xp = calcFac(player.getLevel());
+            float xp = calcFac(exp, player.getLevel());
             fac.addExp(xp);
         }
     }
@@ -317,9 +320,12 @@ public class PlayerHandler implements Listener {
         return exp;
     }
 
-    private int calcFac(int playerLVL) {
-        return 2*playerLVL/3;
+    private float calcFac(double exp, int playerLVL) {
+        double levelFactor = 1 + (playerLVL * 0.05);
+        double expFactor = Math.log10(exp + 1);
+        return (float) ((expFactor * levelFactor) + (exp * (0.1 + (playerLVL * 0.02))));
     }
+
 
 
     @EventHandler
