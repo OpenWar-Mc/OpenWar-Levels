@@ -59,10 +59,24 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material blockType = block.getType();
-        if (blockType == Material.CROPS) {
-            int datablock = block.getData();
-            if (datablock == 7) {
-                if (CROPS.containsKey(blockType)) {
+        if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction")) {
+            System.out.println(blockType.toString());
+            if (blockType.toString().startsWith("harvestcraft:")) {
+                int datablock = block.getData();
+                if (datablock == 3) {
+                    addXp(player, 56.7);
+                }
+            } else if (blockType == Material.CROPS) {
+                int datablock = block.getData();
+                if (datablock == 7) {
+                    if (CROPS.containsKey(blockType)) {
+                        double exp = CROPS.get(blockType);
+                        addXp(player, exp);
+                    }
+                }
+            } else if (CROPS.containsKey(blockType)) {
+                int datablock = block.getData();
+                if (datablock == 7) {
                     double exp = CROPS.get(blockType);
                     addXp(player, exp);
                 }
@@ -134,12 +148,14 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material type = block.getType();
-        if (block.hasMetadata("no_exp")) {
-            return;
-        }
-        if (BLOCK.containsKey(type)) {
-            double exp = BLOCK.get(type);
-            addXp(player, exp);
+        if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction")) {
+            if (block.hasMetadata("no_exp")) {
+                return;
+            }
+            if (BLOCK.containsKey(type)) {
+                double exp = BLOCK.get(type);
+                addXp(player, exp);
+            }
         }
     }
     @EventHandler
@@ -216,6 +232,8 @@ public class PlayerHandler implements Listener {
 
         CROPS.put(Material.CROPS, 42.4);
         CROPS.put(Material.NETHER_WARTS, 30.9);
+        CROPS.put(Material.POTATO, 40.2);
+        CROPS.put(Material.CARROT, 40.2);
 
         MOBS.put("CHICKEN", 34.5);
         MOBS.put("COW", 23.2);
