@@ -151,7 +151,6 @@ public class LevelLock implements Listener {
             int maxAmount = candidate.getSecond();
             int requiredLevel = candidate.getThird();
             int chance = RECOMPENSE.get(candidate);
-
             if (playerLevel >= requiredLevel) {
                 int roll = ThreadLocalRandom.current().nextInt(1, 101);
                 if (roll <= chance) {
