@@ -60,7 +60,6 @@ public class PlayerHandler implements Listener {
         Block block = event.getBlock();
         Material blockType = block.getType();
         if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction")) {
-            System.out.println(blockType.toString());
             if (blockType.toString().startsWith("HARVESTCRAFT_")) {
                 int datablock = block.getData();
                 if (datablock == 3) {
