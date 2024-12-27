@@ -1,6 +1,7 @@
 package com.openwar.openwarlevels.handlers;
 
 import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
+import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarlevels.utils.Tuple;
@@ -25,6 +26,7 @@ public class LevelLock implements Listener {
     private LevelSaveAndLoadBDD data;
     private FactionManager fm;
     private JavaPlugin main;
+    public static Map<Material, Integer> RP = new HashMap<>();
     public static Map<Material, Integer> LOCK = new HashMap<>();
     public static Map<Tuple<Material, Integer, Integer>, Integer> RECOMPENSE = new HashMap<>();
     public LevelLock(JavaPlugin main, LevelSaveAndLoadBDD data, FactionManager fm) {
@@ -33,6 +35,7 @@ public class LevelLock implements Listener {
         this.fm = fm;
         loadRecompense();
         loadLock();
+        loadRaidPoints();
     }
     public static String formatString(String input) {
         if (input.contains(":")) {
@@ -98,6 +101,22 @@ public class LevelLock implements Listener {
     }
 
     @EventHandler
+    public void onCraft(CraftItemEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        if (player.isOp()) { return; }
+        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
+        int level = playerLevel.getLevel();
+        Material type = event.getRecipe().getResult().getType();
+        if (LOCK.containsKey(type)) {
+            int requiredLevel = LOCK.get(type);
+            if (requiredLevel > level) {
+                event.setCancelled(true);
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
+            }
+        }
+    }
+
+    @EventHandler
     public void onThrow(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if(player.isOp()) {return;}
@@ -111,10 +130,65 @@ public class LevelLock implements Listener {
                 if (requiredLevel > level) {
                     event.setCancelled(true);
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " §8to use this item"));
+                } else {
+                    if (RP.containsKey(itemType)) {
+                        int requiredRP = RP.get(itemType);
+                        Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+                        if (fac != null && requiredRP <= fac.getRaidPoint()) {
+                            int initialAmount = event.getItem().getAmount();
+                            Bukkit.getScheduler().runTaskLater(main, () -> {
+                                int currentAmount = 0;
+                                if (player.getInventory().getItemInMainHand().getType() == itemType) {
+                                    currentAmount = player.getInventory().getItemInMainHand().getAmount();
+                                }
+                                if (currentAmount < initialAmount) {
+                                    fac.removeFactionPoint(requiredRP);
+                                    List<Player> members = fac.getOnlineMembers();
+                                    for (Player ms : members) {
+                                        ms.sendMessage("§c- §4§l"+requiredRP+" §7Raid Points §k§8§l!!");
+                                    }
+                                }
+                            }, 20L);
+                        }
+                    }
                 }
             }
         }
     }
+
+    private void loadRaidPoints() {
+        //ITEM, RP
+        RP.put(Material.matchMaterial("hbm:grenade_generic"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_generic"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_strong"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_electric"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_bouncy"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_if_sticky"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_if_impact"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_smart"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_lemon"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_if_incendiary"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_shrapnel"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_cluster"), 4);
+        RP.put(Material.matchMaterial("hbm:grenade_if_he"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_fire"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_mk2"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_if_concussion"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_gas"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_plasma"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_toxic"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_mirv"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_poison"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_tau"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_brimstone"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_cloud"), 4);
+        RP.put(Material.matchMaterial("hbm:grenade_gascan"), 1);
+        RP.put(Material.matchMaterial("hbm:detonator_de"), 1);
+        RP.put(Material.matchMaterial("hbm:detonator_deadman"),1);
+        RP.put(Material.matchMaterial("hbm:grenade_aschrab"), 6);
+        RP.put(Material.matchMaterial("hbm:grenade_pink_cloud"), 4);
+    }
+
 
     public void loadRecompense() {
         //ITEM, MAX AMOUNT, REQUIRED LVL MIN, CHANCE PERCENT
@@ -203,7 +277,6 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:grenade_tau"), 23);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_brimstone"), 24);
         LOCK.put(Material.matchMaterial("hbm:grenade_cloud"), 24);
-        LOCK.put(Material.matchMaterial("hbm:grenade_nuclear"), 25);
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 30);
         LOCK.put(Material.matchMaterial("mwc:ammo_press"), 33);
         LOCK.put(Material.matchMaterial("hbm:sat_radar"), 46);
