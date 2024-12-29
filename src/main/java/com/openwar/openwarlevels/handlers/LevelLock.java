@@ -149,6 +149,8 @@ public class LevelLock implements Listener {
                                     }
                                 }
                             }, 20L);
+                        } else {
+                            event.setCancelled(true);
                         }
                     }
                 }
