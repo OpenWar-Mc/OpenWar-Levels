@@ -119,7 +119,9 @@ public class LevelLock implements Listener {
     @EventHandler
     public void onThrow(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if(player.isOp()) {return;}
+        if(player.isOp()) {
+            player.sendMessage("Tes en admin trou du cul");
+            return;}
         PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
         int level = playerLevel.getLevel();
 

@@ -59,22 +59,25 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material blockType = block.getType();
+        int datablock = block.getData();
         if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction")) {
             if (blockType.toString().startsWith("HARVESTCRAFT_")) {
-                int datablock = block.getData();
                 if (datablock == 3) {
                     addXp(player, 56.7);
                 }
             } else if (blockType == Material.CROPS) {
-                int datablock = block.getData();
                 if (datablock == 7) {
                     if (CROPS.containsKey(blockType)) {
                         double exp = CROPS.get(blockType);
                         addXp(player, exp);
                     }
                 }
+            }else if (datablock == 3 && blockType == Material.NETHER_WARTS) {
+                if (CROPS.containsKey(blockType)) {
+                    double exp = CROPS.get(blockType);
+                    addXp(player, exp);
+                }
             } else if (CROPS.containsKey(blockType)) {
-                int datablock = block.getData();
                 if (datablock == 7) {
                     double exp = CROPS.get(blockType);
                     addXp(player, exp);
