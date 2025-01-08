@@ -4,6 +4,7 @@ import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.level.PlayerLevel;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -22,9 +23,11 @@ public class LevelGUI{
     private LevelSaveAndLoadBDD playerDataManager;
     private JavaPlugin main;
     private MenuHandler mh;
+    private Economy economy;
 
-    public LevelGUI(LevelSaveAndLoadBDD playerDataManager, JavaPlugin main, MenuHandler mh) {
+    public LevelGUI(LevelSaveAndLoadBDD playerDataManager, JavaPlugin main, MenuHandler mh, Economy economy) {
         this.main = main;
+        this.economy = economy;
         this.playerDataManager = playerDataManager;
         this.mh = mh;
     }
@@ -210,8 +213,10 @@ public class LevelGUI{
             meta.setLore(Arrays.asList(
                     "§7Level §8: §c" + level,
                     "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
-                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%"
+                    "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%",
+                    "§7Money §8: §6"+ economy.getBalance(player) + "§6$ "
             ));
+
             playerHead.setItemMeta(meta);
         }
         return playerHead;

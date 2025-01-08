@@ -23,7 +23,7 @@ import java.util.UUID;
 public final class Main extends JavaPlugin {
     private LevelSaveAndLoadBDD pl;
     private FactionManager fm;
-    private Economy economy;
+    private Economy economy = null;
 
     private boolean setupDepend() {
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
@@ -50,7 +50,7 @@ public final class Main extends JavaPlugin {
         }
         ItemBuilder.getInstance().loadTextures(getDataFolder());
         MenuHandler menuHandler = new MenuHandler(this, null);
-        LevelGUI levelGUI = new LevelGUI(pl, this, menuHandler);
+        LevelGUI levelGUI = new LevelGUI(pl, this, menuHandler, economy);
         menuHandler.setLevelGUI(levelGUI);
         getServer().getPluginManager().registerEvents(menuHandler, this);
         this.getCommand("level").setExecutor(new LevelCommand(pl, levelGUI));
