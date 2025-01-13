@@ -119,7 +119,7 @@ public class LevelLock implements Listener {
     @EventHandler
     public void onThrow(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if(player.isOp()) {
+        if(fm.isAdmin(player.getUniqueId())) {
             player.sendMessage("Tes en admin trou du cul");
             return;}
         PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
@@ -163,33 +163,33 @@ public class LevelLock implements Listener {
     private void loadRaidPoints() {
         //ITEM, RP
         RP.put(Material.matchMaterial("hbm:grenade_generic"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_generic"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_strong"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_mk2"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_nuke"), 3);
+        RP.put(Material.matchMaterial("hbm:grenade_breach"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_burst"), 3);
+        RP.put(Material.matchMaterial("hbm:grenade_mirv"), 3);
         RP.put(Material.matchMaterial("hbm:grenade_electric"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_bouncy"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_if_sticky"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_if_impact"), 2);
+        RP.put(Material.matchMaterial("hbm:grenade_if_generic"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_bouncy"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_sticky"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_impact"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_incendiary"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_smart"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_lemon"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_if_incendiary"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_shrapnel"), 1);
         RP.put(Material.matchMaterial("hbm:grenade_cluster"), 4);
         RP.put(Material.matchMaterial("hbm:grenade_if_he"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_fire"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_mk2"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_if_concussion"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_gas"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_concussion"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_plasma"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_toxic"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_mirv"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_poison"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_tau"), 1);
+        RP.put(Material.matchMaterial("hbm:grenade_if_toxic"), 3);
+        RP.put(Material.matchMaterial("hbm:grenade_gas"), 3);
+        RP.put(Material.matchMaterial("hbm:grenade_poison"), 3);
+        RP.put(Material.matchMaterial("hbm:grenade_tau"), 2);
         RP.put(Material.matchMaterial("hbm:grenade_if_brimstone"), 1);
         RP.put(Material.matchMaterial("hbm:grenade_cloud"), 4);
         RP.put(Material.matchMaterial("hbm:grenade_gascan"), 1);
-        RP.put(Material.matchMaterial("hbm:detonator_de"), 1);
-        RP.put(Material.matchMaterial("hbm:detonator_deadman"),1);
-        RP.put(Material.matchMaterial("hbm:grenade_aschrab"), 6);
         RP.put(Material.matchMaterial("hbm:grenade_pink_cloud"), 4);
     }
 
