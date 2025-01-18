@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -210,14 +211,14 @@ public class LevelGUI{
             int progress = (int) ((xp / nextLevelXp) * 10);
             int total = 10;
             double balance = economy.getBalance(player);
-            String formattedBalance = String.format("%.2f", balance);
+            String result = String.format("%,.2f", Double.parseDouble(Double.toString(balance).replace(" ", "")));
 
             meta.setDisplayName("§4§l" + playerName);
             meta.setLore(Arrays.asList(
                     "§7Level §8: §c" + level,
                     "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
                     "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%",
-                    "§7Money §8: §6"+ formattedBalance + "§6$ "
+                    "§7Money §8: §6"+ result + "§6$ "
             ));
 
             playerHead.setItemMeta(meta);
