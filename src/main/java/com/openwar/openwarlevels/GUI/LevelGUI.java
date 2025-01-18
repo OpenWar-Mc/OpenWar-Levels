@@ -209,12 +209,15 @@ public class LevelGUI{
             double percent = (xp / nextLevelXp) * 100;
             int progress = (int) ((xp / nextLevelXp) * 10);
             int total = 10;
+            double balance = economy.getBalance(player);
+            String formattedBalance = String.format("%.2f", balance);
+
             meta.setDisplayName("§4§l" + playerName);
             meta.setLore(Arrays.asList(
                     "§7Level §8: §c" + level,
                     "§7Experience §8: §c"+String.format("%.2f", xp)+"§8/§c"+String.format("%.2f", nextLevelXp),
                     "§7Progression §8: " + getProgressBar(progress, total) + " §c" + String.format("%.2f", percent) + "%",
-                    "§7Money §8: §6"+ economy.getBalance(player) + "§6$ "
+                    "§7Money §8: §6"+ formattedBalance + "§6$ "
             ));
 
             playerHead.setItemMeta(meta);
