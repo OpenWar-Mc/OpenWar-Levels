@@ -17,6 +17,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
@@ -33,7 +35,6 @@ public class LevelLock implements Listener {
         this.data = data;
         this.main = main;
         this.fm = fm;
-        loadRecompense();
         loadLock();
         loadRaidPoints();
     }
@@ -193,64 +194,22 @@ public class LevelLock implements Listener {
     }
 
 
-    public void loadRecompense() {
-        //ITEM, MAX AMOUNT, REQUIRED LVL MIN, CHANCE PERCENT
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:concrete"), 256, 3), 50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_lithium"), 8, 1),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_advanced"), 5, 3),20);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("golden_ingot"), 64, 0),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("diamond"), 32, 4),5);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("coal"), 170, 0),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_steel"), 128, 2),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:concrete_smooth"), 256, 4),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:brick_concrete"), 128, 8),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_copper_torus"), 4, 7),20);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_red_copper"), 128, 6),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:circuit_copper"), 15, 6),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:circuit_raw"), 20, 3),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:battery_generic"), 6, 0),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:pipes_steel"), 4, 6),20);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_gold_torus"), 6, 8),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:coil_copper"), 8, 3),40);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("iron_ingot"), 128, 0),50);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:ingot_advanced_alloy"), 48, 8),30);
-        RECOMPENSE.put(new Tuple<>(Material.matchMaterial("hbm:drax"), 1, 1), 1);
-    }
 
-    public static Tuple<String, Material, Integer> getReward(int playerLevel) {
-        List<Tuple<Material, Integer, Integer>> rewards = new ArrayList<>(RECOMPENSE.keySet());
-        Random random = new Random();
 
-        while (!rewards.isEmpty()) {
-            int randomIndex = random.nextInt(rewards.size());
-            Tuple<Material, Integer, Integer> candidate = rewards.get(randomIndex);
-            Material material = candidate.getFirst();
-            int maxAmount = candidate.getSecond();
-            int requiredLevel = candidate.getThird();
-            int chance = RECOMPENSE.get(candidate);
-            if (playerLevel >= requiredLevel) {
-                int roll = ThreadLocalRandom.current().nextInt(1, 101);
-                if (roll <= chance) {
-                    int quantity = calculateQuantity(playerLevel, maxAmount);
-                    String name = formatString(material.name());
-                    return new Tuple<>(name, material, quantity);
-                }
-            }
-            rewards.remove(randomIndex);
+    public static ItemStack getReward(int playerLevel) {
+        if (playerLevel % 5 == 0) {
+            ItemStack key = new ItemStack(Material.matchMaterial("hbm:key"));
+            ItemMeta meta = key.getItemMeta();
+            List<String> lore = new ArrayList<>();
+            lore.add("§7Open §aLevel Crate");
+            meta.setLore(lore);
+            meta.setDisplayName("§8» §aLevel §8«");
+            key.setItemMeta(meta);
+            return key;
         }
-
         return null;
     }
 
-    private static int calculateQuantity(int playerLevel, int maxAmount) {
-        if (maxAmount < 2) {
-            return 0;
-        }
-        int baseAmount = ThreadLocalRandom.current().nextInt(1, maxAmount / 2 + 1) * 2;
-        double multiplier = 1 + (playerLevel * 0.1);
-        int result = (int) (baseAmount * multiplier);
-        return Math.min(result / 2 * 2, maxAmount);
-    }
     public static void loadLock() {
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 10);
         LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);

@@ -117,17 +117,13 @@ public class PlayerLevel {
             for (String item : items) {
                 player.sendMessage("§8- §4Unlocked §c"+item);
             }
-            Tuple<String, Material, Integer> recomp = LevelLock.getReward(level);
-            assert recomp != null;
-            String name = recomp.getFirst();
-            Integer amount = recomp.getThird();
-            Material material = recomp.getSecond();
-            ItemStack item = new ItemStack(material, amount);
-            player.sendMessage("§8- §3Rewards §8» §f+"+amount+" §b"+name);
+            ItemStack key = LevelLock.getReward(level);
+
+            player.sendMessage("§8- §3Rewards §8» §7You earn §aLevel - Crate §7key !");
             if (player.getInventory().firstEmpty() != -1) {
-                player.getInventory().addItem(item);
+                player.getInventory().addItem(key);
             } else {
-                player.getWorld().dropItemNaturally(player.getLocation(), item);
+                player.getWorld().dropItemNaturally(player.getLocation(), key);
                 player.sendMessage("§8- §cRewards dropped on ground, inventory full !");
             }
         }
