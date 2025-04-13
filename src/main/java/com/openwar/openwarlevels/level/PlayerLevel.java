@@ -118,13 +118,15 @@ public class PlayerLevel {
                 player.sendMessage("§8- §4Unlocked §c"+item);
             }
             ItemStack key = LevelLock.getReward(level);
-
-            player.sendMessage("§8- §3Rewards §8» §7You earn §aLevel - Crate §7key !");
-            if (player.getInventory().firstEmpty() != -1) {
-                player.getInventory().addItem(key);
-            } else {
-                player.getWorld().dropItemNaturally(player.getLocation(), key);
-                player.sendMessage("§8- §cRewards dropped on ground, inventory full !");
+            int y = level % 3;
+            if (y == 0) {
+                player.sendMessage("§8- §3Rewards §8» §7You earn §aLevel - Crate §7key !");
+                if (player.getInventory().firstEmpty() != -1) {
+                    player.getInventory().addItem(key);
+                } else {
+                    player.getWorld().dropItemNaturally(player.getLocation(), key);
+                    player.sendMessage("§8- §cRewards dropped on ground, inventory full !");
+                }
             }
         }
     }
