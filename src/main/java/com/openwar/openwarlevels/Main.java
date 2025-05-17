@@ -61,10 +61,10 @@ public final class Main extends JavaPlugin {
         LevelGUI levelGUI = new LevelGUI(playerDataManager, this, menuHandler, economy);
         menuHandler.setLevelGUI(levelGUI);
 
+        getServer().getPluginManager().registerEvents(new LevelLock(this, playerDataManager, fm), this);
         getServer().getPluginManager().registerEvents(menuHandler, this);
         getServer().getPluginManager().registerEvents(new PlayerListener(pl, playerDataManager), this);
         getServer().getPluginManager().registerEvents(new PlayerHandler(this, playerDataManager, fm), this);
-        getServer().getPluginManager().registerEvents(new LevelLock(this, playerDataManager, fm), this);
 
         this.getCommand("level").setExecutor(new LevelCommand(levelGUI));
         this.getCommand("unlock").setExecutor(new UnlockCommand(levelGUI));
