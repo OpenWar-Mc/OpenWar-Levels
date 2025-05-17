@@ -1,17 +1,17 @@
 package com.openwar.openwarlevels.handlers;
 
-import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
-import com.openwar.openwarfaction.factions.Faction;
+
 import com.openwar.openwarfaction.factions.FactionManager;
+import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import com.openwar.openwarlevels.utils.Tuple;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -23,192 +23,50 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class LevelLock implements Listener {
-    private LevelSaveAndLoadBDD data;
+    private PlayerDataManager data;
     private FactionManager fm;
     private JavaPlugin main;
-    public static Map<Material, Integer> RP = new HashMap<>();
-    public static Map<Material, Integer> LOCK = new HashMap<>();
+    public static final Map<String, Integer> GRENADE_RP_MAP = new HashMap<>();
+    public static final Map<Material, Integer> LOCK = new HashMap<>();
     public static Map<Tuple<Material, Integer, Integer>, Integer> RECOMPENSE = new HashMap<>();
-    public LevelLock(JavaPlugin main, LevelSaveAndLoadBDD data, FactionManager fm) {
+
+
+    public LevelLock(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
         this.main = main;
         this.fm = fm;
-        loadLock();
-        loadRaidPoints();
-    }
-    public static String formatString(String input) {
-        if (input.contains(":")) {
-            input = input.split(":")[1];
-        }
-        return capitalizeWords(input.replace("_", " "));
     }
 
-    private static String capitalizeWords(String input) {
-        String[] words = input.split(" ");
-        StringBuilder formatted = new StringBuilder();
-        for (String word : words) {
-            if (!word.isEmpty()) {
-                formatted.append(Character.toUpperCase(word.charAt(0)))
-                        .append(word.substring(1).toLowerCase())
-                        .append(" ");
-            }
-        }
-        return formatted.toString().trim();
-    }
-    public static ArrayList<String> getWhatUnlocked(int lvl) {
-        ArrayList<String> unlockedItems = new ArrayList<>();
-        for (Map.Entry<Material, Integer> entry : LOCK.entrySet()) {
-            if (entry.getValue() == lvl) {
-                String oneItem = formatString(entry.getKey().toString());
-                unlockedItems.add(oneItem);
-            }
-        }
-        return unlockedItems;
-    }
-
-
-    //@EventHandler
-    //public void onInteract(PlayerInteractEvent event) {
-    //    Player player = event.getPlayer();
-    //    int level = player.getLevel();
-    //    Block block = event.getClickedBlock();
-    //    Material type = block.getType();
-    //    if (LOCK.containsKey(type)) {
-    //        int requiredLevel = LOCK.get(type);
-    //        if (requiredLevel > level) {
-    //            event.setCancelled(true);
-    //            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8» §cYou need to be level: §4" + requiredLevel + " §c!"));
-    //        }
-    //    }
-    //}
-
-    @EventHandler
-    public void onPlace(BlockPlaceEvent event) {
-        Player player = event.getPlayer();
-        if(player.isOp()) {return;}
-        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
-        int level = playerLevel.getLevel();
-        Block block = event.getBlock();
-        Material type = block.getType();
-        if (LOCK.containsKey(type)) {
-            int requiredLevel = LOCK.get(type);
-            if (requiredLevel > level) {
-                event.setCancelled(true);
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
-            }
-        }
-    }
-
-    @EventHandler
-    public void onCraft(CraftItemEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        if (player.isOp()) { return; }
-        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
-        int level = playerLevel.getLevel();
-        Material type = event.getRecipe().getResult().getType();
-        if (LOCK.containsKey(type)) {
-            int requiredLevel = LOCK.get(type);
-            if (requiredLevel > level) {
-                event.setCancelled(true);
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
-            }
-        }
-    }
-
-    @EventHandler
-    public void onThrow(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        if(fm.isAdmin(player.getUniqueId())) {
-            return;}
-        PlayerLevel playerLevel = data.loadPlayerData(player.getUniqueId());
-        int level = playerLevel.getLevel();
-
-        if (event.getItem() != null) {
-            Material itemType = event.getItem().getType();
-            if (LOCK.containsKey(itemType)) {
-                int requiredLevel = LOCK.get(itemType);
-                if (requiredLevel > level) {
-                    event.setCancelled(true);
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " §8to use this item"));
-                } else {
-                    if (RP.containsKey(itemType)) {
-                        int requiredRP = RP.get(itemType);
-                        Faction fac = fm.getFactionByPlayer(player.getUniqueId());
-                        if (fac != null && requiredRP <= fac.getRaidPoint()) {
-                            int initialAmount = event.getItem().getAmount();
-                            Bukkit.getScheduler().runTaskLater(main, () -> {
-                                int currentAmount = 0;
-                                if (player.getInventory().getItemInMainHand().getType() == itemType) {
-                                    currentAmount = player.getInventory().getItemInMainHand().getAmount();
-                                }
-                                if (currentAmount < initialAmount) {
-                                    fac.removeFactionPoint(requiredRP);
-                                    List<Player> members = fac.getOnlineMembers();
-                                    for (Player ms : members) {
-                                        ms.sendMessage("§c- §4§l"+requiredRP+" §7Raid Points §k§8§l!!");
-                                    }
-                                }
-                            }, 20L);
-                        } else {
-                            event.setCancelled(true);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void loadRaidPoints() {
-        //ITEM, RP
-        RP.put(Material.matchMaterial("hbm:grenade_generic"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_strong"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_mk2"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_nuke"), 3);
-        RP.put(Material.matchMaterial("hbm:grenade_breach"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_burst"), 3);
-        RP.put(Material.matchMaterial("hbm:grenade_mirv"), 3);
-        RP.put(Material.matchMaterial("hbm:grenade_electric"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_generic"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_bouncy"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_sticky"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_impact"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_incendiary"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_smart"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_lemon"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_shrapnel"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_cluster"), 4);
-        RP.put(Material.matchMaterial("hbm:grenade_if_he"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_fire"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_concussion"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_plasma"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_if_toxic"), 3);
-        RP.put(Material.matchMaterial("hbm:grenade_gas"), 3);
-        RP.put(Material.matchMaterial("hbm:grenade_poison"), 3);
-        RP.put(Material.matchMaterial("hbm:grenade_tau"), 2);
-        RP.put(Material.matchMaterial("hbm:grenade_if_brimstone"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_cloud"), 4);
-        RP.put(Material.matchMaterial("hbm:grenade_gascan"), 1);
-        RP.put(Material.matchMaterial("hbm:grenade_pink_cloud"), 4);
-    }
-
-
-
-
-    public static ItemStack getReward(int playerLevel) {
-        if (playerLevel % 5 == 0) {
-            ItemStack key = new ItemStack(Material.matchMaterial("hbm:key"));
-            ItemMeta meta = key.getItemMeta();
-            List<String> lore = new ArrayList<>();
-            lore.add("§7Open §aLevel Crate");
-            meta.setLore(lore);
-            meta.setDisplayName("§8» §aLevel §8«");
-            key.setItemMeta(meta);
-            return key;
-        }
-        return null;
-    }
-
-    public static void loadLock() {
+    static {
+        GRENADE_RP_MAP.put("HBM_GRENADE_GENERIC", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_STRONG", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_MK2", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_NUKE", 3);
+        GRENADE_RP_MAP.put("HBM_GRENADE_BREACH", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_BURST", 3);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_GENERIC", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_ELECTRIC", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_BOUNCY", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_STICKY", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_IMPACT", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_SMART", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_LEMON", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_INCENDIARY", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_SHRAPNEL", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_CLUSTER", 4);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_HE", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_FIRE", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_CONCUSSION", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_PLASMA", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_TOXIC", 3);
+        GRENADE_RP_MAP.put("HBM_GRENADE_MIRV", 3);
+        GRENADE_RP_MAP.put("HBM_GRENADE_TAU", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_IF_BRIMSTONE", 2);
+        GRENADE_RP_MAP.put("HBM_GRENADE_POISON", 3);
+        GRENADE_RP_MAP.put("HBM_GRENADE_GAS", 3);
+        GRENADE_RP_MAP.put("HBM_GRENADE_CLOUD", 4);
+        GRENADE_RP_MAP.put("HBM_GRENADE_GASCAN", 1);
+        GRENADE_RP_MAP.put("HBM_GRENADE_PINK_CLOUD", 4);
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 10);
         LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_generic"), 15);
@@ -268,5 +126,105 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:turret_fritz"), 46);
         LOCK.put(Material.matchMaterial("mwc:weapon_workbench"), 40);
         LOCK.put(Material.matchMaterial("hbm:missile_soyuz0"), 40);
+    }
+
+    @EventHandler
+    public void onPlace(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        if(player.isOp()) {return;}
+        PlayerLevel playerLevel = data.getPlayerData(player.getUniqueId());
+        int level = playerLevel.getLevel();
+        Block block = event.getBlock();
+        Material type = block.getType();
+        if (LOCK.containsKey(type)) {
+            int requiredLevel = LOCK.get(type);
+            if (requiredLevel > level) {
+                event.setCancelled(true);
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
+            }
+        }
+    }
+
+    @EventHandler
+    public void onCraft(CraftItemEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        if (player.isOp()) { return; }
+        PlayerLevel playerLevel = data.getPlayerData(player.getUniqueId());
+        int level = playerLevel.getLevel();
+        Material type = event.getRecipe().getResult().getType();
+        if (LOCK.containsKey(type)) {
+            int requiredLevel = LOCK.get(type);
+            if (requiredLevel > level) {
+                event.setCancelled(true);
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onThrow(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if(fm.isAdmin(player.getUniqueId())) {
+            return;}
+        PlayerLevel playerLevel = data.getPlayerData(player.getUniqueId());
+        int level = playerLevel.getLevel();
+
+        if (event.getItem() != null) {
+            Material itemType = event.getItem().getType();
+            if (LOCK.containsKey(itemType)) {
+                int requiredLevel = LOCK.get(itemType);
+                if (requiredLevel > level) {
+                    event.setCancelled(true);
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " §8to use this item"));
+                }
+            }
+        }
+    }
+
+
+    public static ItemStack getReward(int playerLevel) {
+        if (playerLevel % 5 == 0) {
+            ItemStack key = new ItemStack(Material.matchMaterial("hbm:key"));
+            ItemMeta meta = key.getItemMeta();
+            List<String> lore = new ArrayList<>();
+            lore.add("§7Open §aLevel Crate");
+            meta.setLore(lore);
+            meta.setDisplayName("§8» §aLevel §8«");
+            key.setItemMeta(meta);
+            return key;
+        }
+        return null;
+    }
+
+
+//Full chat gpt pour le format des noms d'item à partir de leur material, d'ailleurs bukkit va bien te faire enculer à pas mettre les display name tant que le joueur rename pas son putain d'item c'est complètement débile et ntm
+    public static String formatItemName(String rawName) {
+        String[] parts = rawName.split(":");
+        if (parts.length != 2) return rawName;
+        String namespace = capitalize(parts[0].toLowerCase());
+        String itemPart = parts[1].toLowerCase();
+        String[] words = itemPart.split("_");
+        StringBuilder formatted = new StringBuilder(namespace);
+        for (String word : words) {
+            formatted.append(" ").append(capitalize(word));
+        }
+
+        return formatted.toString();
+    }
+
+    private static String capitalize(String word) {
+        if (word == null || word.isEmpty()) return word;
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+
+    public static ArrayList<String> getWhatUnlocked(int lvl) {
+        ArrayList<String> unlockedItems = new ArrayList<>();
+        for (Map.Entry<Material, Integer> entry : LOCK.entrySet()) {
+            if (entry.getValue() == lvl) {
+                String oneItem = formatItemName(entry.getKey().toString());
+                unlockedItems.add(oneItem);
+            }
+        }
+        return unlockedItems;
     }
 }

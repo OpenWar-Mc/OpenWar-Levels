@@ -1,9 +1,9 @@
 package com.openwar.openwarlevels.handlers;
 
-import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.GUI.ItemBuilder;
+import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerHandler implements Listener {
 
-    private final LevelSaveAndLoadBDD data;
+    private final PlayerDataManager data;
     private final FactionManager fm;
     private final JavaPlugin main;
     private String logo = "§8» §6Levels 8« §7";
@@ -45,7 +45,7 @@ public class PlayerHandler implements Listener {
     private final Map<UUID, Long> lastExpTime = new ConcurrentHashMap<>();
 
 
-    public PlayerHandler(JavaPlugin main, LevelSaveAndLoadBDD data, FactionManager fm) {
+    public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
         this.data = data;
         this.main = main;
         this.fm = fm;
@@ -103,12 +103,12 @@ public class PlayerHandler implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player deceased = event.getEntity();
         Player killer = deceased.getKiller();
-        PlayerLevel victim = data.loadPlayerData(deceased.getUniqueId());
+        PlayerLevel victim = data.getPlayerData(deceased.getUniqueId());
         if (victim != null) {
             victim.addDeaths(1);
         }
         if (killer != null) {
-            PlayerLevel attacker = data.loadPlayerData(killer.getUniqueId());
+            PlayerLevel attacker = data.getPlayerData(killer.getUniqueId());
             if (attacker != null) {
                 String killerFaction = fm.getFactionByPlayer(killer.getUniqueId()) != null
                         ? fm.getFactionByPlayer(killer.getUniqueId()).getName()
@@ -295,7 +295,7 @@ public class PlayerHandler implements Listener {
             checkFactionXp(player, fac, exp);
             expB = calcExpBoost(player, fac, exp);
         }
-        PlayerLevel playerLevel = data.loadPlayerData(id);
+        PlayerLevel playerLevel = data.getPlayerData(id);
         playerLevel.addExperience(exp, player);
         playerLevel.addExperience(expB, player);
         //Reduce laaaaggggzzzzzzzzz

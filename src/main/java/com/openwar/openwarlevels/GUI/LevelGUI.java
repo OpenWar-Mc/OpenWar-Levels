@@ -1,8 +1,8 @@
 package com.openwar.openwarlevels.GUI;
 
-import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
+import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -15,18 +15,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class LevelGUI{
 
-    private LevelSaveAndLoadBDD playerDataManager;
+    private PlayerDataManager playerDataManager;
     private JavaPlugin main;
     private MenuHandler mh;
     private Economy economy;
 
-    public LevelGUI(LevelSaveAndLoadBDD playerDataManager, JavaPlugin main, MenuHandler mh, Economy economy) {
+    public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh, Economy economy) {
         this.main = main;
         this.economy = economy;
         this.playerDataManager = playerDataManager;
@@ -106,7 +105,7 @@ public class LevelGUI{
         Map<UUID, Integer> playerLevels = new HashMap<>();
         for (OfflinePlayer player : players) {
             UUID playerUUID = player.getUniqueId();
-            int level = playerDataManager.loadPlayerData(playerUUID).getLevel();
+            int level = playerDataManager.getPlayerData(playerUUID).getLevel();
             playerLevels.put(playerUUID, level);
         }
         List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerLevels.entrySet());
@@ -202,7 +201,7 @@ public class LevelGUI{
         SkullMeta meta = (SkullMeta) playerHead.getItemMeta();
         if (meta != null) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerName);
-            PlayerLevel playerLevel = playerDataManager.loadPlayerData(player.getUniqueId());
+            PlayerLevel playerLevel = playerDataManager.getPlayerData(player.getUniqueId());
             int level = playerLevel.getLevel();
             double xp = playerLevel.getExperience();
             double nextLevelXp = playerLevel.getExpNextLevel();
@@ -245,7 +244,7 @@ public class LevelGUI{
     }
 
     public int getPlayerLevel(UUID playerUUID) {
-        return playerDataManager.loadPlayerData(playerUUID).getLevel();
+        return playerDataManager.getPlayerData(playerUUID).getLevel();
     }
 
     public List<Map.Entry<Material, Integer>> getLockList() {

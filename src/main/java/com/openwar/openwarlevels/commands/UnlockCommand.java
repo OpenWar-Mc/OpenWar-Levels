@@ -1,6 +1,5 @@
 package com.openwar.openwarlevels.commands;
 
-import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarlevels.GUI.LevelGUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,12 +8,9 @@ import org.bukkit.entity.Player;
 
 public class UnlockCommand implements CommandExecutor {
     private String logo = "§8» §6Levels 8« §7";
-    private String usage = "§fUsage: §c/unlock";
-    private LevelSaveAndLoadBDD playerDataManager;
     private LevelGUI gui;
 
-    public UnlockCommand(LevelSaveAndLoadBDD playerDataManager, LevelGUI gui) {
-        this.playerDataManager = playerDataManager;
+    public UnlockCommand(LevelGUI gui) {
         this.gui = gui;
     }
 
