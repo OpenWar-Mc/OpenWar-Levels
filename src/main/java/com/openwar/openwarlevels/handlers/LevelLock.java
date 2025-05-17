@@ -1,26 +1,30 @@
 package com.openwar.openwarlevels.handlers;
 
 
+import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.level.PlayerDataManager;
 import com.openwar.openwarlevels.level.PlayerLevel;
-import com.openwar.openwarlevels.utils.Tuple;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class LevelLock implements Listener {
     private PlayerDataManager data;
@@ -28,7 +32,8 @@ public class LevelLock implements Listener {
     private JavaPlugin main;
     public static final Map<String, Integer> GRENADE_RP_MAP = new HashMap<>();
     public static final Map<Material, Integer> LOCK = new HashMap<>();
-    public static Map<Tuple<Material, Integer, Integer>, Integer> RECOMPENSE = new HashMap<>();
+    private final AtomicInteger rpCounter = new AtomicInteger(0);
+    private final Map<UUID, Long> cooldowns = new HashMap<>();
 
 
     public LevelLock(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
@@ -127,6 +132,60 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("mwc:weapon_workbench"), 40);
         LOCK.put(Material.matchMaterial("hbm:missile_soyuz0"), 40);
     }
+    
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerUse(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        long lastUse = cooldowns.getOrDefault(uuid, 0L);
+        if (now - lastUse < 100) {
+            event.setCancelled(true);
+            return;
+        }
+        cooldowns.put(uuid, now);
+
+        if (LOCK.containsKey(player.getInventory().getItemInMainHand().getType())) {
+            Action action = event.getAction();
+            if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+                if (!(fm.getFactionByPlayer(uuid).getRaidPoint() >= GRENADE_RP_MAP.get(player.getInventory().getItemInMainHand().getType().toString()) && data.getPlayerData(uuid).getLevel() >= LOCK.get(player.getInventory().getItemInMainHand().getType()))) {
+                    event.setCancelled(true);
+                    int level = data.getPlayerData(uuid).getLevel();
+                    if (level < LOCK.get(player.getInventory().getItemInMainHand().getType())) {
+                        int requiredLevel = LOCK.get(player.getInventory().getItemInMainHand().getType());
+                        sendActionBar(player, "§8You need to be level: §c" + requiredLevel + " ");
+                    } else {
+                        sendActionBar(player, "§8» §bFaction §8« §cYou don't have enough §4Raid Point.");
+                    }
+                } else {
+                    facConsumeAndBroadcast(player, GRENADE_RP_MAP.get(player.getInventory().getItemInMainHand().getType().toString()));
+                }
+            }
+        }
+    }
+    private void sendActionBar(Player player, String message) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+    }
+
+    private void facConsumeAndBroadcast(Player player, int rp) {
+        Faction fac = fm.getFactionByPlayer(player.getUniqueId());
+        fac.setRaidPoint(fac.getRaidPoint() - rp);
+        int total = rpCounter.addAndGet(rp);
+        String  url   = "https://openwar.fr/public/download/" + player.getInventory()
+                .getItemInMainHand().getType().toString() + ".PNG";
+
+        fac.getOnlineMembers().forEach(m -> Bukkit.dispatchCommand(
+                Bukkit.getConsoleSender(),
+                String.format(
+                        "hud %s 16 16 left [&8> &c- &4%d &cRP] 1 right %s false true",
+                        url, total, m.getName()
+                )
+        ));
+
+        Bukkit.getScheduler().runTaskLater(main, () -> {
+            rpCounter.set(0);
+        }, 20L * 5);
+    }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
@@ -157,26 +216,6 @@ public class LevelLock implements Listener {
             if (requiredLevel > level) {
                 event.setCancelled(true);
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " "));
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onThrow(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        if(fm.isAdmin(player.getUniqueId())) {
-            return;}
-        PlayerLevel playerLevel = data.getPlayerData(player.getUniqueId());
-        int level = playerLevel.getLevel();
-
-        if (event.getItem() != null) {
-            Material itemType = event.getItem().getType();
-            if (LOCK.containsKey(itemType)) {
-                int requiredLevel = LOCK.get(itemType);
-                if (requiredLevel > level) {
-                    event.setCancelled(true);
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§8You need to be level: §c" + requiredLevel + " §8to use this item"));
-                }
             }
         }
     }
