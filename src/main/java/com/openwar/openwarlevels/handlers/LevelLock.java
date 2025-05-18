@@ -132,7 +132,7 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("mwc:weapon_workbench"), 40);
         LOCK.put(Material.matchMaterial("hbm:missile_soyuz0"), 40);
     }
-    
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
