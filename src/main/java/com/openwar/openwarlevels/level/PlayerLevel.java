@@ -114,12 +114,14 @@ public class PlayerLevel {
             this.level = currentLevel;
             player.sendMessage("§8§k§l!!§r §cYou just ranked-up level §4§l" + level + " §8§k§l!!");
             ArrayList<String> items = LevelLock.getWhatUnlocked(level);
-            for (String item : items) {
-                player.sendMessage("§8- §4Unlocked §c"+item);
+            if (!items.isEmpty()) {
+                for (String item : items) {
+                    player.sendMessage("§8- §4Unlocked §c" + item);
+                }
             }
-            ItemStack key = LevelLock.getReward(level);
             int y = level % 3;
             if (y == 0) {
+                ItemStack key = LevelLock.getReward(level);
                 player.sendMessage("§8- §3Rewards §8» §7You earn §aLevel - Crate §7key !");
                 if (player.getInventory().firstEmpty() != -1) {
                     player.getInventory().addItem(key);
