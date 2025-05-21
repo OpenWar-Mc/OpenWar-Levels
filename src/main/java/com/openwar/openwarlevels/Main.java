@@ -33,6 +33,15 @@ public final class Main extends JavaPlugin {
         RegisteredServiceProvider<FactionManager> factionDataProvider = getServer().getServicesManager().getRegistration(FactionManager.class);
         if (levelProvider == null || factionDataProvider == null || rsp == null) {
             System.out.println("ERROR !!!!!!!!!!!!!!!!!!!!");
+            if (levelProvider == null) {
+                System.out.println("Level Provider");
+            }
+            if (factionDataProvider == null) {
+                System.out.println("Faction Manager");
+            }
+            if (rsp == null) {
+                System.out.println("Level Save and Load BDD");
+            }
             return false;
         }
         economy = rsp.getProvider();
@@ -58,7 +67,7 @@ public final class Main extends JavaPlugin {
 
 
         MenuHandler menuHandler = new MenuHandler(this, null);
-        LevelGUI levelGUI = new LevelGUI(playerDataManager, this, menuHandler, economy);
+        LevelGUI levelGUI = new LevelGUI(pl, playerDataManager, this, menuHandler, economy);
         menuHandler.setLevelGUI(levelGUI);
 
         getServer().getPluginManager().registerEvents(new LevelLock(this, playerDataManager, fm), this);
