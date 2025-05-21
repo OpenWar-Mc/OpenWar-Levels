@@ -1,5 +1,6 @@
 package com.openwar.openwarlevels.GUI;
 
+import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
 import com.openwar.openwarlevels.handlers.LevelLock;
 import com.openwar.openwarlevels.handlers.MenuHandler;
 import com.openwar.openwarlevels.level.PlayerDataManager;
@@ -24,12 +25,14 @@ public class LevelGUI{
     private JavaPlugin main;
     private MenuHandler mh;
     private Economy economy;
+    private LevelSaveAndLoadBDD levelSaveAndLoadBDD;
 
-    public LevelGUI(PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh, Economy economy) {
+    public LevelGUI(LevelSaveAndLoadBDD levelSaveAndLoadBDD, PlayerDataManager playerDataManager, JavaPlugin main, MenuHandler mh, Economy economy) {
         this.main = main;
         this.economy = economy;
         this.playerDataManager = playerDataManager;
         this.mh = mh;
+        this.levelSaveAndLoadBDD = levelSaveAndLoadBDD;
     }
 
     private void addBorders(Inventory inv, int rows) {
@@ -103,9 +106,10 @@ public class LevelGUI{
     public List<UUID> generateLeaderboardsListSorted() {
         OfflinePlayer[] players = Bukkit.getOfflinePlayers();
         Map<UUID, Integer> playerLevels = new HashMap<>();
+        //TODO A FIX
         for (OfflinePlayer player : players) {
             UUID playerUUID = player.getUniqueId();
-            int level = playerDataManager.getPlayerData(playerUUID).getLevel();
+            int level = levelSaveAndLoadBDD.loadPlayerData(playerUUID).getLevel();
             playerLevels.put(playerUUID, level);
         }
         List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(playerLevels.entrySet());
