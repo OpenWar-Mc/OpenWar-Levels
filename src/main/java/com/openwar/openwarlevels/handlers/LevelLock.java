@@ -77,6 +77,7 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:grenade_if_generic"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_strong"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_flare"), 15);
+        LOCK.put(Material.matchMaterial("hbm:grenade_gascan"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_electric"), 15);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_bouncy"), 16);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_sticky"), 16);
@@ -90,11 +91,13 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:grenade_if_he"), 18);
         LOCK.put(Material.matchMaterial("hbm:grenade_fire"), 18);
         LOCK.put(Material.matchMaterial("hbm:grenade_mk2"), 18);
+        LOCK.put(Material.matchMaterial("hbm:grenade_burst"), 19);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_concussion"), 19);
         LOCK.put(Material.matchMaterial("hbm:grenade_gas"), 19);
         LOCK.put(Material.matchMaterial("hbm:grenade_plasma"), 19);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_toxic"), 20);
         LOCK.put(Material.matchMaterial("hbm:grenade_mirv"), 21);
+        LOCK.put(Material.matchMaterial("hbm:grenade_breach"), 21);
         LOCK.put(Material.matchMaterial("hbm:grenade_poison"), 21);
         LOCK.put(Material.matchMaterial("hbm:missile_anti_ballistic"), 22);
         LOCK.put(Material.matchMaterial("hbm:grenade_tau"), 23);
@@ -136,6 +139,10 @@ public class LevelLock implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        if (!(LOCK.containsKey(player.getInventory().getItemInMainHand().getType()))) {
+            return;
+        }
+        System.out.println(player.getInventory().getItemInMainHand().getType().toString());
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         long lastUse = cooldowns.getOrDefault(uuid, 0L);
@@ -222,17 +229,14 @@ public class LevelLock implements Listener {
 
 
     public static ItemStack getReward(int playerLevel) {
-        if (playerLevel % 5 == 0) {
-            ItemStack key = new ItemStack(Material.matchMaterial("hbm:key"));
-            ItemMeta meta = key.getItemMeta();
-            List<String> lore = new ArrayList<>();
-            lore.add("§7Open §aLevel Crate");
-            meta.setLore(lore);
-            meta.setDisplayName("§8» §aLevel §8«");
-            key.setItemMeta(meta);
-            return key;
-        }
-        return null;
+        ItemStack key = new ItemStack(Material.matchMaterial("hbm:key"));
+        ItemMeta meta = key.getItemMeta();
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Open §aLevel Crate");
+        meta.setLore(lore);
+        meta.setDisplayName("§8» §aLevel §8«");
+        key.setItemMeta(meta);
+        return key;
     }
 
 
