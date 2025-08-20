@@ -1,19 +1,24 @@
-package com.openwar.openwarlevels.level;
+package com.openwar.openwarlevels.manager;
 
-import com.openwar.openwarfaction.factions.FactionManager;
+
 import com.openwar.openwarlevels.handlers.LevelLock;
-import com.openwar.openwarlevels.utils.Tuple;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class PlayerLevel {
+
     private static final int[] expRequis = {
-            0, 318, 930, 2201, 4170, 6772, 10089, 14180, 18981, 24596, 31023, 38210, 46296, 55211, 64927, 75619, 87145, 99531, 112915, 127155, 142320, 158481, 175526, 193559, 212579, 232507, 253484, 275438, 298320, 322313, 347268, 373189, 400244, 428260, 457300, 487456, 518591, 550806, 584118, 618424, 653868, 690386, 727914, 766636, 806408, 847214, 889252, 932323, 976482, 1021848, 1068261, 1115817, 1164553, 1214348, 1265342, 1317487, 1370702, 1425173, 1480765, 1537439
+            0, 318, 930, 2201, 4170, 6772, 10089, 14180, 18981, 24596, 31023, 38210,
+            46296, 55211, 64927, 75619, 87145, 99531, 112915, 127155, 142320, 158481,
+            175526, 193559, 212579, 232507, 253484, 275438, 298320, 322313, 347268,
+            373189, 400244, 428260, 457300, 487456, 518591, 550806, 584118, 618424,
+            653868, 690386, 727914, 766636, 806408, 847214, 889252, 932323, 976482,
+            1021848, 1068261, 1115817, 1164553, 1214348, 1265342, 1317487, 1370702,
+            1425173, 1480765, 1537439
     };
+
     private int level;
     private double experience;
     private int kills;
@@ -32,68 +37,29 @@ public class PlayerLevel {
         this.playTime = playTime;
     }
 
-    public long getPlayTime() {return playTime;}
-    public int getKills() {return kills;}
-    public int getDeaths() {return deaths;}
-    public double getGain() {return gain;}
-    public double getLoss() {return loss;}
-
-    public void setPlayTime(long playTime) {this.playTime = playTime;}
-
-    public void setKills(int kills) {
-        this.kills = kills;
+    public int getLevel() { return level; }
+    public double getExperience() { return experience; }
+    public int getKills() { return kills; }
+    public int getDeaths() { return deaths; }
+    public double getGain() { return gain; }
+    public double getLoss() { return loss; }
+    public long getPlayTime() { return playTime; }
+    public void setLevel(int level) { this.level = level; }
+    public void setExperience(double exp) { this.experience = exp; }
+    public void setKills(int kills) { this.kills = kills; }
+    public void setDeaths(int deaths) { this.deaths = deaths; }
+    public void setGain(double gain) { this.gain = gain; }
+    public void setLoss(double loss) { this.loss = loss; }
+    public void setPlayTime(long playTime) { this.playTime = playTime; }
+    public void addExperience(double exp, Player p) {
+        this.experience += exp;
+        checkLevelUp(p);
     }
-
-    public void setDeaths(int deaths) {
-        this.deaths = deaths;
-    }
-
-    public void setGain(double gain) {
-        this.gain = gain;
-    }
-
-    public void setLoss(double loss) {
-        this.loss = loss;
-    }
-
-    public void addKills(int kills) {
-        this.kills = this.kills + kills;
-    }
-
-    public void addDeaths(int deaths) {
-        this.deaths = this.deaths + deaths;
-    }
-
-    public void addGain(double gain) {
-        this.gain = this.gain + gain;
-    }
-
-    public void addLoss(double loss) {
-        this.loss = this.loss + loss;
-    }
-
-    public void addPlayTime(long playTime) {this.playTime = this.playTime +playTime;}
-
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
-    public double getExperience() {
-        return experience;
-    }
-    public void addExperience(double experience, Player player){
-        this.experience+=experience;
-        checkLevelUp(player);
-    }
-    public void setExperience(double experience, Player player) {
-        this.experience = experience;
-        checkLevelUp(player);
-    }
+    public void addKills(int kills) { this.kills += kills; }
+    public void addDeaths(int deaths) { this.deaths += deaths; }
+    public void addGain(double gain) { this.gain += gain; }
+    public void addLoss(double loss) { this.loss += loss; }
+    public void addPlayTime(long playTime) { this.playTime += playTime; }
 
     public double getExpNextLevel() {
         if (level >= expRequis.length - 1) return expRequis[expRequis.length - 1];

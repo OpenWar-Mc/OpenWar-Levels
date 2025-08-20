@@ -3,8 +3,9 @@ package com.openwar.openwarlevels.handlers;
 
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
-import com.openwar.openwarlevels.level.PlayerDataManager;
-import com.openwar.openwarlevels.level.PlayerLevel;
+import com.openwar.openwarlevels.manager.PlayerDataManager;
+import com.openwar.openwarlevels.manager.PlayerLevel;
+import com.openwar.openwarlevels.manager.PlayerManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -18,7 +19,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,8 +27,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LevelLock implements Listener {
-    private PlayerDataManager data;
     private FactionManager fm;
+    private PlayerManager pm;
     private JavaPlugin main;
     public static final Map<String, Integer> GRENADE_RP_MAP = new HashMap<>();
     public static final Map<Material, Integer> LOCK = new HashMap<>();
@@ -36,42 +36,14 @@ public class LevelLock implements Listener {
     private final Map<UUID, Long> cooldowns = new HashMap<>();
 
 
-    public LevelLock(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
-        this.data = data;
+    public LevelLock(JavaPlugin main, FactionManager fm, PlayerManager playerManager) {
         this.main = main;
         this.fm = fm;
+        this.pm = playerManager;
+
     }
 
     static {
-        GRENADE_RP_MAP.put("HBM_GRENADE_GENERIC", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_STRONG", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_MK2", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_NUKE", 3);
-        GRENADE_RP_MAP.put("HBM_GRENADE_BREACH", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_BURST", 3);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_GENERIC", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_ELECTRIC", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_BOUNCY", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_STICKY", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_IMPACT", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_SMART", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_LEMON", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_INCENDIARY", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_SHRAPNEL", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_CLUSTER", 4);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_HE", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_FIRE", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_CONCUSSION", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_PLASMA", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_TOXIC", 3);
-        GRENADE_RP_MAP.put("HBM_GRENADE_MIRV", 3);
-        GRENADE_RP_MAP.put("HBM_GRENADE_TAU", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_IF_BRIMSTONE", 2);
-        GRENADE_RP_MAP.put("HBM_GRENADE_POISON", 3);
-        GRENADE_RP_MAP.put("HBM_GRENADE_GAS", 3);
-        GRENADE_RP_MAP.put("HBM_GRENADE_CLOUD", 4);
-        GRENADE_RP_MAP.put("HBM_GRENADE_GASCAN", 1);
-        GRENADE_RP_MAP.put("HBM_GRENADE_PINK_CLOUD", 4);
         LOCK.put(Material.matchMaterial("hbm:det_charge"), 10);
         LOCK.put(Material.matchMaterial("hbm:grenade_generic"), 12);
         LOCK.put(Material.matchMaterial("hbm:grenade_if_generic"), 15);
@@ -120,86 +92,28 @@ public class LevelLock implements Listener {
         LOCK.put(Material.matchMaterial("hbm:mp_warhead_10_buster"), 36);
         LOCK.put(Material.matchMaterial("hbm:mp_warhead_15_he"), 40);
         LOCK.put(Material.matchMaterial("hbm:mp_warhead_15_incendiary"), 42);
-        LOCK.put(Material.matchMaterial("hbm:turret_light"), 28);
-        LOCK.put(Material.matchMaterial("hbm:turret_heavy"), 30);
-        LOCK.put(Material.matchMaterial("hbm:turret_rocket"), 34);
-        LOCK.put(Material.matchMaterial("hbm:turret_flamer"), 32);
-        LOCK.put(Material.matchMaterial("hbm:turret_tau"), 40);
-        LOCK.put(Material.matchMaterial("hbm:turret_maxwell"), 52);
-        LOCK.put(Material.matchMaterial("hbm:turret_tauon"), 50);
-        LOCK.put(Material.matchMaterial("hbm:turret_jeremy"), 48);
-        LOCK.put(Material.matchMaterial("hbm:turret_friendly"), 42);
-        LOCK.put(Material.matchMaterial("hbm:turret_richard"), 53);
-        LOCK.put(Material.matchMaterial("hbm:turret_chekhov"), 56);
-        LOCK.put(Material.matchMaterial("hbm:turret_fritz"), 46);
+
+        LOCK.put(Material.matchMaterial("hbm:turret_maxwell"), 42);
+        LOCK.put(Material.matchMaterial("hbm:turret_tauon"), 40);
+        LOCK.put(Material.matchMaterial("hbm:turret_jeremy"), 38);
+        LOCK.put(Material.matchMaterial("hbm:turret_friendly"), 34);
+        LOCK.put(Material.matchMaterial("hbm:turret_richard"), 43);
+        LOCK.put(Material.matchMaterial("hbm:turret_chekhov"), 46);
+        LOCK.put(Material.matchMaterial("hbm:turret_fritz"), 36);
+
         LOCK.put(Material.matchMaterial("mwc:weapon_workbench"), 40);
         LOCK.put(Material.matchMaterial("hbm:missile_soyuz0"), 40);
+        LOCK.put(Material.matchMaterial("hbm:mp_warhead_15_n2"), 50);
     }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerUse(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        if (!(LOCK.containsKey(player.getInventory().getItemInMainHand().getType()))) {
-            return;
-        }
-        System.out.println(player.getInventory().getItemInMainHand().getType().toString());
-        UUID uuid = player.getUniqueId();
-        long now = System.currentTimeMillis();
-        long lastUse = cooldowns.getOrDefault(uuid, 0L);
-        if (now - lastUse < 100) {
-            event.setCancelled(true);
-            return;
-        }
-        cooldowns.put(uuid, now);
-
-        if (LOCK.containsKey(player.getInventory().getItemInMainHand().getType())) {
-            Action action = event.getAction();
-            if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-                if (!(fm.getFactionByPlayer(uuid).getRaidPoint() >= GRENADE_RP_MAP.get(player.getInventory().getItemInMainHand().getType().toString()) && data.getPlayerData(uuid).getLevel() >= LOCK.get(player.getInventory().getItemInMainHand().getType()))) {
-                    event.setCancelled(true);
-                    int level = data.getPlayerData(uuid).getLevel();
-                    if (level < LOCK.get(player.getInventory().getItemInMainHand().getType())) {
-                        int requiredLevel = LOCK.get(player.getInventory().getItemInMainHand().getType());
-                        sendActionBar(player, "§8You need to be level: §c" + requiredLevel + " ");
-                    } else {
-                        sendActionBar(player, "§8» §bFaction §8« §cYou don't have enough §4Raid Point.");
-                    }
-                } else {
-                    facConsumeAndBroadcast(player, GRENADE_RP_MAP.get(player.getInventory().getItemInMainHand().getType().toString()));
-                }
-            }
-        }
-    }
-    private void sendActionBar(Player player, String message) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
-    }
-
-    private void facConsumeAndBroadcast(Player player, int rp) {
-        Faction fac = fm.getFactionByPlayer(player.getUniqueId());
-        fac.setRaidPoint(fac.getRaidPoint() - rp);
-        int total = rpCounter.addAndGet(rp);
-        String  url   = "https://openwar.fr/public/download/" + player.getInventory()
-                .getItemInMainHand().getType().toString() + ".PNG";
-
-        fac.getOnlineMembers().forEach(m -> Bukkit.dispatchCommand(
-                Bukkit.getConsoleSender(),
-                String.format(
-                        "hud %s 16 16 left [&8> &c- &4%d &cRP] 1 right %s false true",
-                        url, total, m.getName()
-                )
-        ));
-
-        Bukkit.getScheduler().runTaskLater(main, () -> {
-            rpCounter.set(0);
-        }, 20L * 5);
+    public int getPlayerLevel(UUID playerUUID) {
+        return pm.get(playerUUID).getLevel();
     }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         if(player.isOp()) {return;}
-        PlayerLevel playerLevel = data.getPlayerData(player.getUniqueId());
-        int level = playerLevel.getLevel();
+        int level = getPlayerLevel(player.getUniqueId());
         Block block = event.getBlock();
         Material type = block.getType();
         if (LOCK.containsKey(type)) {
@@ -215,8 +129,7 @@ public class LevelLock implements Listener {
     public void onCraft(CraftItemEvent event) {
         Player player = (Player) event.getWhoClicked();
         if (player.isOp()) { return; }
-        PlayerLevel playerLevel = data.getPlayerData(player.getUniqueId());
-        int level = playerLevel.getLevel();
+        int level = getPlayerLevel(player.getUniqueId());
         Material type = event.getRecipe().getResult().getType();
         if (LOCK.containsKey(type)) {
             int requiredLevel = LOCK.get(type);

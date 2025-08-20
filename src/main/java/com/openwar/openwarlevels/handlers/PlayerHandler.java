@@ -3,12 +3,14 @@ package com.openwar.openwarlevels.handlers;
 import com.openwar.openwarfaction.factions.Faction;
 import com.openwar.openwarfaction.factions.FactionManager;
 import com.openwar.openwarlevels.GUI.ItemBuilder;
-import com.openwar.openwarlevels.level.PlayerDataManager;
-import com.openwar.openwarlevels.level.PlayerLevel;
+import com.openwar.openwarlevels.manager.PlayerDataManager;
+import com.openwar.openwarlevels.manager.PlayerLevel;
+import com.openwar.openwarlevels.manager.PlayerManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,6 +19,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -29,8 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerHandler implements Listener {
 
-    private final PlayerDataManager data;
     private final FactionManager fm;
+    private final PlayerManager pm;
     private final JavaPlugin main;
     private String logo = "§8» §6Levels 8« §7";
 
@@ -45,10 +48,10 @@ public class PlayerHandler implements Listener {
     private final Map<UUID, Long> lastExpTime = new ConcurrentHashMap<>();
 
 
-    public PlayerHandler(JavaPlugin main, PlayerDataManager data, FactionManager fm) {
-        this.data = data;
+    public PlayerHandler(JavaPlugin main, FactionManager fm, PlayerManager playerManager) {
         this.main = main;
         this.fm = fm;
+        this.pm = playerManager;
         loadList();
         startExpTimer();
         startCleanupTask();
@@ -59,9 +62,16 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material blockType = block.getType();
+        Block blockBelow = block.getRelative(BlockFace.DOWN);
+        Block blockAbove = block.getRelative(BlockFace.UP);
         int datablock = block.getData();
         if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction")) {
-            if (blockType.toString().startsWith("HARVESTCRAFT_")) {
+            if (blockType.toString().startsWith("OPENWARDRUGZ_")) {
+                if (datablock == 2 && blockAbove.getData() == 1 || datablock == 1 && blockBelow.getData() == 2) {
+                    addXp(player, 690.7);
+                }
+            }
+            else if (blockType.toString().startsWith("HARVESTCRAFT_")) {
                 if (datablock == 3) {
                     addXp(player, 56.7);
                 }
@@ -85,6 +95,14 @@ public class PlayerHandler implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onFish(PlayerFishEvent event) {
+        if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+            Player player = event.getPlayer();
+            addXp(player, 250D);
+        }
+    }
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         Entity entity = event.getEntity();
@@ -103,12 +121,12 @@ public class PlayerHandler implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player deceased = event.getEntity();
         Player killer = deceased.getKiller();
-        PlayerLevel victim = data.getPlayerData(deceased.getUniqueId());
+        PlayerLevel victim = pm.get(deceased.getUniqueId());
         if (victim != null) {
             victim.addDeaths(1);
         }
         if (killer != null) {
-            PlayerLevel attacker = data.getPlayerData(killer.getUniqueId());
+            PlayerLevel attacker =  pm.get(killer.getUniqueId());
             if (attacker != null) {
                 String killerFaction = fm.getFactionByPlayer(killer.getUniqueId()) != null
                         ? fm.getFactionByPlayer(killer.getUniqueId()).getName()
@@ -150,7 +168,7 @@ public class PlayerHandler implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material type = block.getType();
-        if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction")) {
+        if (player.getWorld().getName().equals("world") || player.getWorld().getName().equals("faction") || player.getWorld().getName().equals("nether")) {
             if (block.hasMetadata("no_exp")) {
                 return;
             }
@@ -224,6 +242,10 @@ public class PlayerHandler implements Listener {
         BLOCK.put(Material.matchMaterial("hbm:ore_schrabidium"), 4320.0);
         BLOCK.put(Material.matchMaterial("hbm:ore_nether_schrabidium"), 4095.0);
         BLOCK.put(Material.matchMaterial("hbm:ore_gneiss_schrabidium"), 7200.0);
+
+        BLOCK.put(Material.QUARTZ_ORE, 67.3);
+
+
         BLOCK.put(Material.LOG, 10.4);
         BLOCK.put(Material.LOG_2, 10.4);
 
@@ -295,14 +317,13 @@ public class PlayerHandler implements Listener {
             checkFactionXp(player, fac, exp);
             expB = calcExpBoost(player, fac, exp);
         }
-        PlayerLevel playerLevel = data.getPlayerData(id);
+        PlayerLevel playerLevel = pm.get(player.getUniqueId());
         playerLevel.addExperience(exp, player);
-        playerLevel.addExperience(expB, player);
-        //Reduce laaaaggggzzzzzzzzz
-        //data.savePlayerData(id, playerLevel);
+        playerLevel.addExperience(expB,player);
         experience.put(id, exp + experience.get(id));
         expboost.put(id, expB + expboost.get(id));
         showExp(player, exp, expB);
+
     }
 
     public void showExp(Player player, double exp, double expb) {
@@ -317,15 +338,20 @@ public class PlayerHandler implements Listener {
     }
 
     private void checkFactionXp(Player player, Faction fac, double exp) {
+        UUID id = player.getUniqueId();
         int facLVL = fac.getLevel();
-        float requiredXP = facLVL*278.6F;
-        if (requiredXP == 0) {
-            requiredXP = 100F;
-        }
-        if (expfac.get(player.getUniqueId()) >= requiredXP) {
-            expfac.put(player.getUniqueId(), 0.0);
-            float xp = calcFac(exp, player.getLevel());
+        float requiredXP = facLVL * 278.6F;
+        if (requiredXP == 0) requiredXP = 100F;
+
+        int safety = 100;
+        while (expfac.get(id) >= requiredXP && safety-- > 0) {
+            expfac.put(id, expfac.get(id) - requiredXP);
+            float xp = calcFac(requiredXP, player.getLevel());
             fac.addExp(xp);
+
+            facLVL = fac.getLevel();
+            requiredXP = facLVL * 278.6F;
+            if (requiredXP == 0) requiredXP = 100F;
         }
     }
 
@@ -343,7 +369,8 @@ public class PlayerHandler implements Listener {
     private float calcFac(double exp, int playerLVL) {
         double levelFactor = 1 + (playerLVL * 0.05);
         double expFactor = Math.log10(exp + 1);
-        return (float) ((expFactor * levelFactor) + (exp * (0.1 + (playerLVL * 0.02))));
+        return (float) (((expFactor * levelFactor) + (exp * (0.1 + (playerLVL * 0.02)))) * 0.97F);
+
     }
 
 

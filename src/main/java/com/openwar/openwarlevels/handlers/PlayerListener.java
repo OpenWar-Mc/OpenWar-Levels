@@ -1,8 +1,9 @@
 package com.openwar.openwarlevels.handlers;
 
-import com.openwar.openwarcore.Utils.LevelSaveAndLoadBDD;
-import com.openwar.openwarlevels.level.PlayerDataManager;
-import com.openwar.openwarlevels.level.PlayerLevel;
+import com.openwar.openwarcore.data.LevelDataManager;
+import com.openwar.openwarlevels.manager.PlayerDataManager;
+import com.openwar.openwarlevels.manager.PlayerLevel;
+import com.openwar.openwarlevels.manager.PlayerManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,12 +14,12 @@ import java.util.UUID;
 
 public class PlayerListener implements Listener {
 
-    private final LevelSaveAndLoadBDD levelSaveAndLoadBDD;
-    private final PlayerDataManager playerDataManager;
+    private final LevelDataManager levelSaveAndLoadBDD;
+    private final PlayerManager playerManager;
 
-    public PlayerListener(LevelSaveAndLoadBDD levelSaveAndLoadBDD, PlayerDataManager playerDataManager) {
+    public PlayerListener(LevelDataManager levelSaveAndLoadBDD, PlayerManager playerManager) {
         this.levelSaveAndLoadBDD = levelSaveAndLoadBDD;
-        this.playerDataManager = playerDataManager;
+        this.playerManager = playerManager;
     }
 
     @EventHandler
@@ -31,7 +32,7 @@ public class PlayerListener implements Listener {
             levelSaveAndLoadBDD.savePlayerData(playerUUID, data);
         }
         //il va load une fois les players data depuis la bdd pour permettre au autres de les utiliser
-        playerDataManager.setPlayerData(playerUUID);
+        playerManager.addPlayer(playerUUID);
     }
 
     @EventHandler
@@ -39,10 +40,7 @@ public class PlayerListener implements Listener {
         Player player = e.getPlayer();
         UUID playerUUID = player.getUniqueId();
         //récup des données depuis la bonne class et pas depuis la bdd de merde
-        PlayerLevel data = playerDataManager.getPlayerData(playerUUID);
+        PlayerLevel data = playerManager.get(playerUUID);
         levelSaveAndLoadBDD.savePlayerData(playerUUID, data);
-        //onb l'enlève pour qu'il save pas quand le joueur est déco
-        playerDataManager.removePlayerData(playerUUID);
-
     }
 }
